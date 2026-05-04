@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Attendance Management System — A semester-based, role-driven web application to digitize and streamline attendance for educational institutions." />
+  <title>AMS — Attendance Management System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ---- HERO ---- */
+    .hero-section {
+      min-height: 100vh;
+      background: var(--gradient-hero);
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 7rem 0 4rem;
+    }
+
+    .hero-bg-orbs {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+    }
+
+    .orb-1 {
+      width: 500px; height: 500px;
+      background: var(--primary);
+      top: -150px; left: -100px;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .orb-2 {
+      width: 350px; height: 350px;
+      background: var(--secondary);
+      bottom: -80px; right: -50px;
+      animation: float 6s ease-in-out infinite reverse;
+    }
+
+    .orb-3 {
+      width: 250px; height: 250px;
+      background: #a855f7;
+      top: 50%; right: 25%;
+      animation: float 10s ease-in-out infinite 2s;
+    }
+
+    /* Grid lines bg */
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(108,99,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(108,99,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: rgba(108, 99, 255, 0.1);
+      border: 1px solid rgba(108, 99, 255, 0.25);
+      color: var(--primary-light);
+      border-radius: 100px;
+      padding: 0.4rem 1.1rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title .line-accent {
+      background: linear-gradient(135deg, #6c63ff 0%, #a855f7 50%, #00d4aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-desc {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      max-width: 540px;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 3rem;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-stat-num {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .hero-stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .hero-stat-divider {
+      width: 1px;
+      background: var(--border-color);
+      align-self: stretch;
+    }
+
+    /* ---- DASHBOARD PREVIEW ---- */
+    .dashboard-preview {
+      position: relative;
+    }
+
+    .preview-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg), 0 0 60px rgba(108, 99, 255, 0.12);
+      animation: float 5s ease-in-out infinite;
+    }
+
+    .preview-topbar {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.8rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .preview-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+
+    .pd-red   { background: #ff5f56; }
+    .pd-yellow{ background: #ffbd2e; }
+    .pd-green { background: #27ca3f; }
+
+    .preview-body { padding: 1.2rem; }
+
+    .preview-mini-stat {
+      background: rgba(108, 99, 255, 0.08);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-sm);
+      padding: 0.7rem;
+      text-align: center;
+    }
+
+    .preview-mini-stat .val {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .preview-mini-stat .lbl {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .preview-progress-row {
+      margin-top: 0.9rem;
+    }
+
+    .preview-progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.35rem;
+    }
+
+    /* ---- FLOATING BADGES ---- */
+    .floating-badge {
+      position: absolute;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 0.75rem 1rem;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+
+    .fb-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    .floating-badge-1 {
+      top: -1.5rem; left: -2rem;
+      animation: float 4s ease-in-out infinite 0.5s;
+    }
+
+    .floating-badge-2 {
+      bottom: 2rem; right: -2rem;
+      animation: float 5s ease-in-out infinite 1s;
+    }
+
+    /* ---- FEATURES ---- */
+    .features-section { padding: 5rem 0; }
+
+    .feature-card {
+      background: var(--gradient-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      padding: 2rem;
+      height: 100%;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(108,99,255,0.06), transparent 60%);
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .feature-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .feature-card:hover::after { opacity: 1; }
+
+    .feature-icon {
+      width: 58px; height: 58px;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .feature-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.6rem;
+    }
+
+    .feature-desc {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    /* ---- HOW IT WORKS ---- */
+    .how-section { padding: 5rem 0; background: var(--bg-secondary); }
+
+    .step-card {
+      display: flex;
+      gap: 1.2rem;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 15px rgba(108,99,255,0.35);
+    }
+
+    .step-content-title {
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+    }
+
+    .step-content-desc {
+      font-size: 0.87rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .step-connector {
+      width: 2px;
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(108,99,255,0.4), transparent);
+      margin: 0.5rem 0 0.5rem 1.35rem;
+    }
+
+    /* ---- ROLES ---- */
+    .roles-section { padding: 5rem 0; }
+
+    .role-card {
+      background: var(--gradient-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      padding: 2.5rem;
+      height: 100%;
+      transition: var(--transition);
+    }
+
+    .role-card:hover {
+      border-color: var(--border-hover);
+      box-shadow: var(--shadow-glow);
+      transform: translateY(-4px);
+    }
+
+    .role-avatar {
+      width: 70px; height: 70px;
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .role-name {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .role-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      margin-bottom: 1.5rem;
+    }
+
+    .role-perm-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .role-perm-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.87rem;
+      color: var(--text-secondary);
+    }
+
+    .role-perm-list li .check-icon {
+      color: var(--success);
+      font-size: 0.8rem;
+    }
+
+    /* ---- CTA SECTION ---- */
+    .cta-section {
+      padding: 6rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(108,99,255,0.12) 0%, transparent 70%);
+    }
+
+    .cta-box {
+      background: var(--gradient-card);
+      border: 1px solid var(--border-hover);
+      border-radius: 24px;
+      padding: 4rem 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gradient-primary);
+    }
+
+    .cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .cta-desc {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      max-width: 480px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+
+    /* ---- HOME PAGE RESPONSIVE ---- */
+    @media (max-width: 991.98px) {
+      .hero-section { padding: 5rem 0 3rem; }
+      .hero-title { font-size: clamp(2rem, 5vw, 3rem); }
+      .hero-desc { font-size: 1rem; margin-bottom: 2rem; }
+      .hero-cta-group { gap: 0.75rem; }
+      .hero-stats { gap: 1.5rem; }
+      .hero-stat-num { font-size: 1.3rem; }
+
+      .floating-badge { display: none; }
+
+      .preview-card { box-shadow: var(--shadow-md); }
+      .preview-mini-stat .val { font-size: 1.1rem; }
+
+      .features-section, .roles-section { padding: 3.5rem 0; }
+      .how-section { padding: 3.5rem 0; }
+
+      .cta-box { padding: 3rem 1.5rem; }
+      .cta-title { font-size: clamp(1.5rem, 4vw, 2.2rem); }
+    }
+
+    @media (max-width: 767.98px) {
+      .hero-section { padding: 4rem 0 2.5rem; min-height: auto; }
+      .hero-badge { font-size: 0.7rem; padding: 0.3rem 0.9rem; margin-bottom: 1rem; }
+      .hero-desc { font-size: 0.92rem; line-height: 1.65; }
+      .hero-cta-group { flex-direction: column; align-items: stretch; }
+      .hero-cta-group .btn-primary-ams,
+      .hero-cta-group .btn-secondary-ams { justify-content: center; text-align: center; }
+      .hero-stats { gap: 1rem; justify-content: center; }
+      .hero-stat-num { font-size: 1.15rem; }
+      .hero-stat-label { font-size: 0.7rem; }
+
+      .dashboard-preview { margin-top: 1rem; }
+
+      .orb-1 { width: 300px; height: 300px; }
+      .orb-2 { width: 200px; height: 200px; }
+      .orb-3 { display: none; }
+
+      .feature-card { padding: 1.5rem; }
+      .feature-icon { width: 48px; height: 48px; font-size: 1.2rem; border-radius: 12px; }
+      .feature-title { font-size: 1.05rem; }
+      .feature-desc { font-size: 0.84rem; }
+
+      .step-card { gap: 1rem; }
+      .step-num { width: 38px; height: 38px; font-size: 0.95rem; }
+      .step-content-title { font-size: 0.92rem; }
+      .step-content-desc { font-size: 0.82rem; }
+      .step-connector { height: 30px; margin-left: 1.15rem; }
+
+      .role-card { padding: 1.75rem; }
+      .role-avatar { width: 56px; height: 56px; font-size: 1.6rem; border-radius: 14px; }
+      .role-name { font-size: 1.2rem; }
+      .role-desc { font-size: 0.85rem; }
+      .role-perm-list li { font-size: 0.82rem; }
+
+      .cta-box { padding: 2.5rem 1.25rem; }
+      .cta-desc { font-size: 0.9rem; }
+
+      .footer-brand { font-size: 1.05rem; }
+      .footer-text { font-size: 0.8rem; }
+    }
+
+    @media (max-width: 575.98px) {
+      .hero-section { padding: 3.5rem 0 2rem; }
+      .hero-title { margin-bottom: 1rem; }
+      .btn-lg-ams { padding: 0.7rem 1.5rem; font-size: 0.9rem; }
+
+      .preview-body { padding: 0.8rem; }
+      .preview-mini-stat { padding: 0.5rem; }
+      .preview-mini-stat .val { font-size: 1rem; }
+      .preview-mini-stat .lbl { font-size: 0.6rem; }
+      .preview-progress-label { font-size: 0.7rem; }
+
+      .features-section, .roles-section { padding: 2.5rem 0; }
+      .how-section { padding: 2.5rem 0; }
+
+      .cta-box { padding: 2rem 1rem; border-radius: 16px; }
+
+      .ams-footer { padding: 2rem 0 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== NAVBAR ==================== -->
+  <nav class="ams-navbar navbar navbar-expand-lg" id="mainNavbar">
+    <div class="container">
+      <a class="navbar-brand" href="index.html" id="nav-brand-home">
+        <span class="brand-icon">🎓</span>
+        AMS<span class="brand-accent">.</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" id="nav-toggler">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav ms-auto align-items-center gap-1">
+          <li class="nav-item"><a class="nav-link active" href="index.html" id="nav-home">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html" id="nav-about">About</a></li>
+          <li class="nav-item ms-2">
+            <a class="btn-secondary-ams" href="login.html" id="nav-login">
+              <i class="fa-solid fa-right-to-bracket"></i> Login
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="btn-primary-ams" href="signup.html" id="nav-signup">
+              <i class="fa-solid fa-user-plus"></i> Sign Up
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==================== HERO ==================== -->
+  <section class="hero-section" id="hero">
+    <div class="hero-bg-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+
+    <div class="container position-relative">
+      <div class="row align-items-center g-5">
+        <!-- Left Content -->
+        <div class="col-lg-6">
+          <div class="animate-fade-up">
+            <div class="hero-badge">
+              <span class="glow-dot"></span>
+              Semester-Based Digital Attendance
+            </div>
+            <h1 class="hero-title">
+              Manage Attendance<br />
+              <span class="line-accent">Smarter &amp; Faster</span>
+            </h1>
+            <p class="hero-desc">
+              A secure, role-driven web platform designed for educational institutions.
+              Digitize attendance records, generate PDF reports, and empower teachers
+              and students with real-time data insights.
+            </p>
+
+            <div class="hero-cta-group">
+              <a href="login.html" class="btn-primary-ams btn-lg-ams" id="hero-cta-teacher">
+                <i class="fa-solid fa-chalkboard-teacher"></i> Login as Teacher
+              </a>
+              <a href="signup.html" class="btn-secondary-ams btn-lg-ams" id="hero-cta-student">
+                <i class="fa-solid fa-graduation-cap"></i> Student Portal
+              </a>
+            </div>
+
+            <div class="hero-stats">
+              <div class="hero-stat-item">
+                <span class="hero-stat-num">8</span>
+                <span class="hero-stat-label">Semesters</span>
+              </div>
+              <div class="hero-stat-divider"></div>
+              <div class="hero-stat-item">
+                <span class="hero-stat-num">100%</span>
+                <span class="hero-stat-label">Secure JWT</span>
+              </div>
+              <div class="hero-stat-divider"></div>
+              <div class="hero-stat-item">
+                <span class="hero-stat-num">PDF</span>
+                <span class="hero-stat-label">Reports</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right — Dashboard Preview -->
+        <div class="col-lg-6 animate-fade-up delay-3">
+          <div class="dashboard-preview">
+
+            <!-- Floating badge top -->
+            <div class="floating-badge floating-badge-1">
+              <div class="fb-icon stat-icon-green"><i class="fa-solid fa-check"></i></div>
+              <div>
+                <div style="font-size:0.75rem;color:var(--text-muted);">Today's Records</div>
+                <div>32 Present · 4 Absent</div>
+              </div>
+            </div>
+
+            <!-- Main preview card -->
+            <div class="preview-card">
+              <div class="preview-topbar">
+                <span class="preview-dot pd-red"></span>
+                <span class="preview-dot pd-yellow"></span>
+                <span class="preview-dot pd-green"></span>
+                <span style="margin-left:0.8rem;font-size:0.78rem;color:var(--text-muted);">Teacher Dashboard · Semester 6</span>
+              </div>
+              <div class="preview-body">
+                <div class="row g-2 mb-3">
+                  <div class="col-4">
+                    <div class="preview-mini-stat">
+                      <div class="val text-gradient">36</div>
+                      <div class="lbl">Students</div>
+                    </div>
+                  </div>
+                  <div class="col-4">
+                    <div class="preview-mini-stat">
+                      <div class="val" style="color:var(--success);">89%</div>
+                      <div class="lbl">Avg. Attend.</div>
+                    </div>
+                  </div>
+                  <div class="col-4">
+                    <div class="preview-mini-stat">
+                      <div class="val" style="color:var(--info);">5</div>
+                      <div class="lbl">Subjects</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.6rem;">Attendance by Subject</div>
+
+                <div class="preview-progress-row">
+                  <div class="preview-progress-label"><span>Data Structures</span><span style="color:var(--success)">92%</span></div>
+                  <div class="ams-progress"><div class="ams-progress-bar success" style="width:92%"></div></div>
+                </div>
+                <div class="preview-progress-row" style="margin-top:0.7rem;">
+                  <div class="preview-progress-label"><span>Database Systems</span><span style="color:var(--success)">86%</span></div>
+                  <div class="ams-progress"><div class="ams-progress-bar success" style="width:86%"></div></div>
+                </div>
+                <div class="preview-progress-row" style="margin-top:0.7rem;">
+                  <div class="preview-progress-label"><span>Web Engineering</span><span style="color:var(--warning)">71%</span></div>
+                  <div class="ams-progress"><div class="ams-progress-bar warning" style="width:71%"></div></div>
+                </div>
+                <div class="preview-progress-row" style="margin-top:0.7rem;">
+                  <div class="preview-progress-label"><span>Algorithms</span><span style="color:var(--danger)">48%</span></div>
+                  <div class="ams-progress"><div class="ams-progress-bar danger" style="width:48%"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Floating badge bottom -->
+            <div class="floating-badge floating-badge-2">
+              <div class="fb-icon stat-icon-purple"><i class="fa-solid fa-file-pdf"></i></div>
+              <div>
+                <div style="font-size:0.75rem;color:var(--text-muted);">PDF Generated</div>
+                <div>April Report Ready ✓</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FEATURES ==================== -->
+  <section class="features-section" id="features">
+    <div class="container">
+      <div class="text-center mb-5 animate-fade-up">
+        <div class="section-tag"><i class="fa-solid fa-star"></i> Core Features</div>
+        <h2 class="section-title">Everything You Need to <span class="gradient-text">Manage Attendance</span></h2>
+        <p class="section-subtitle mx-auto mt-3">From marking attendance to generating PDF reports — all in one secure, semester-isolated platform.</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-4 animate-fade-up delay-1">
+          <div class="feature-card">
+            <div class="feature-icon stat-icon-purple"><i class="fa-solid fa-calendar-check"></i></div>
+            <div class="feature-title">Smart Attendance Marking</div>
+            <p class="feature-desc">Teachers select a date and subject, then mark each student as Present or Absent with one click. Records are saved instantly with full audit trail.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 animate-fade-up delay-2">
+          <div class="feature-card">
+            <div class="feature-icon stat-icon-green"><i class="fa-solid fa-chart-pie"></i></div>
+            <div class="feature-title">Real-Time Analytics</div>
+            <p class="feature-desc">Students see subject-wise attendance percentages computed on-the-fly. Visualized with progress bars and clear color-coded indicators.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 animate-fade-up delay-3">
+          <div class="feature-card">
+            <div class="feature-icon stat-icon-red"><i class="fa-solid fa-file-pdf"></i></div>
+            <div class="feature-title">Monthly PDF Reports</div>
+            <p class="feature-desc">Students can download a professionally formatted PDF report of their monthly attendance per subject with one click — no printing required.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 animate-fade-up delay-1">
+          <div class="feature-card">
+            <div class="feature-icon stat-icon-blue"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="feature-title">JWT Security & RBAC</div>
+            <p class="feature-desc">Every endpoint is protected by JWT tokens. Role-based access control ensures teachers and students only access their own authorized data.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 animate-fade-up delay-2">
+          <div class="feature-card">
+            <div class="feature-icon stat-icon-yellow"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="feature-title">Semester Isolation</div>
+            <p class="feature-desc">Every record is strictly scoped to a semester. Teachers and students can never access cross-semester data — guaranteed at the database level.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4 animate-fade-up delay-3">
+          <div class="feature-card">
+            <div class="feature-icon" style="background:rgba(168,85,247,0.12);color:#a855f7;"><i class="fa-solid fa-comment-dots"></i></div>
+            <div class="feature-title">Student Feedback System</div>
+            <p class="feature-desc">Students can submit structured feedback (rating + comment) for their teachers — fostering accountability and continuous improvement.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== HOW IT WORKS ==================== -->
+  <section class="how-section" id="how-it-works">
+    <div class="container">
+      <div class="text-center mb-5 animate-fade-up">
+        <div class="section-tag"><i class="fa-solid fa-circle-play"></i> How It Works</div>
+        <h2 class="section-title">Simple Workflows for <span class="gradient-text">Both Roles</span></h2>
+      </div>
+
+      <div class="row g-5">
+        <!-- Teacher Flow -->
+        <div class="col-lg-6 animate-fade-up delay-1">
+          <div class="ams-card">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div class="stat-icon stat-icon-purple" style="width:48px;height:48px;border-radius:12px;font-size:1.2rem;"><i class="fa-solid fa-chalkboard-teacher"></i></div>
+              <div>
+                <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;">Teacher Flow</div>
+                <div style="font-size:0.82rem;color:var(--text-muted);">Full control over attendance &amp; students</div>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-num">1</div>
+              <div>
+                <div class="step-content-title">Login with credentials</div>
+                <p class="step-content-desc">Teacher logs in with their pre-seeded email and password. A JWT token is issued upon successful authentication.</p>
+              </div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div>
+                <div class="step-content-title">Complete profile setup</div>
+                <p class="step-content-desc">On first login, teacher fills in their Name, Subject, Class, Semester, and Department to unlock full access.</p>
+              </div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-card">
+              <div class="step-num">3</div>
+              <div>
+                <div class="step-content-title">Add students &amp; subjects</div>
+                <p class="step-content-desc">Teacher enrolls students into their semester and creates subjects they teach — all strictly isolated to their account.</p>
+              </div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-card">
+              <div class="step-num">4</div>
+              <div>
+                <div class="step-content-title">Mark daily attendance</div>
+                <p class="step-content-desc">Select a date and subject, mark each student as Present or Absent, and submit. Records can be updated or deleted anytime.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Student Flow -->
+        <div class="col-lg-6 animate-fade-up delay-2">
+          <div class="ams-card">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div class="stat-icon stat-icon-green" style="width:48px;height:48px;border-radius:12px;font-size:1.2rem;"><i class="fa-solid fa-graduation-cap"></i></div>
+              <div>
+                <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;">Student Flow</div>
+                <div style="font-size:0.82rem;color:var(--text-muted);">View attendance, feedback &amp; PDF download</div>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-num" style="background:var(--gradient-secondary);">1</div>
+              <div>
+                <div class="step-content-title">Register an account</div>
+                <p class="step-content-desc">Students self-register with their name, email, password, semester, and department. No admin approval needed.</p>
+              </div>
+            </div>
+            <div class="step-connector" style="background:linear-gradient(to bottom, rgba(0,212,170,0.4), transparent);"></div>
+            <div class="step-card">
+              <div class="step-num" style="background:var(--gradient-secondary);">2</div>
+              <div>
+                <div class="step-content-title">Login &amp; access dashboard</div>
+                <p class="step-content-desc">After login, students land on their personalized dashboard showing all attendance data for their semester.</p>
+              </div>
+            </div>
+            <div class="step-connector" style="background:linear-gradient(to bottom, rgba(0,212,170,0.4), transparent);"></div>
+            <div class="step-card">
+              <div class="step-num" style="background:var(--gradient-secondary);">3</div>
+              <div>
+                <div class="step-content-title">View subject-wise attendance</div>
+                <p class="step-content-desc">See Present/Absent counts, attendance percentage, and teacher name for each subject in a clear table view.</p>
+              </div>
+            </div>
+            <div class="step-connector" style="background:linear-gradient(to bottom, rgba(0,212,170,0.4), transparent);"></div>
+            <div class="step-card">
+              <div class="step-num" style="background:var(--gradient-secondary);">4</div>
+              <div>
+                <div class="step-content-title">Download PDF &amp; submit feedback</div>
+                <p class="step-content-desc">Download monthly attendance PDF or submit a rating and comment as feedback for any of their teachers.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== ROLES ==================== -->
+  <section class="roles-section" id="roles">
+    <div class="container">
+      <div class="text-center mb-5 animate-fade-up">
+        <div class="section-tag"><i class="fa-solid fa-user-shield"></i> User Roles</div>
+        <h2 class="section-title">Built for <span class="gradient-text">Two Roles</span></h2>
+        <p class="section-subtitle mx-auto mt-3">Every feature, permission, and data boundary is designed around precise role definitions.</p>
+      </div>
+
+      <div class="row g-4">
+        <!-- Teacher -->
+        <div class="col-lg-6 animate-fade-up delay-1">
+          <div class="role-card">
+            <div class="role-avatar" style="background:rgba(108,99,255,0.12);">👨‍🏫</div>
+            <div class="role-name">Teacher</div>
+            <p class="role-desc">Teachers are pre-seeded by administrators and have full ownership over their semester data — no teacher can access another's records.</p>
+            <ul class="role-perm-list">
+              <li><i class="fa-solid fa-circle-check check-icon"></i> Mark attendance per date and subject</li>
+              <li><i class="fa-solid fa-circle-check check-icon"></i> Add, manage, delete students in their semester</li>
+              <li><i class="fa-solid fa-circle-check check-icon"></i> Create and manage subjects they teach</li>
+              <li><i class="fa-solid fa-circle-check check-icon"></i> Update or delete their own attendance records</li>
+              <li><i class="fa-solid fa-circle-check check-icon"></i> Edit their own profile information</li>
+            </ul>
+            <div class="mt-3">
+              <a href="login.html" class="btn-primary-ams" id="role-teacher-login">
+                <i class="fa-solid fa-right-to-bracket"></i> Teacher Login
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Student -->
+        <div class="col-lg-6 animate-fade-up delay-2">
+          <div class="role-card" style="border-color:rgba(0,212,170,0.2);">
+            <div class="role-avatar" style="background:rgba(0,212,170,0.1);">🎓</div>
+            <div class="role-name text-gradient-green">Student</div>
+            <p class="role-desc">Students self-register and get a read-only view of their own attendance — transparent, secure, and semester-scoped.</p>
+            <ul class="role-perm-list">
+              <li><i class="fa-solid fa-circle-check check-icon"></i> Self-register and create their account</li>
+              <li><i class="fa-solid fa-circle-check check-icon"></i> View subject-wise attendance percentage</li>
+              <li><i class="fa-solid fa-circle-check check-icon"></i> See teacher name for each subject</li>
+              <li><i class="fa-solid fa-circle-check check-icon"></i> Submit feedback (rating + comment) for teachers</li>
+              <li><i class="fa-solid fa-circle-check check-icon"></i> Download monthly attendance PDF report</li>
+            </ul>
+            <div class="mt-3 d-flex gap-2">
+              <a href="signup.html" class="btn-success-ams" id="role-student-signup">
+                <i class="fa-solid fa-user-plus"></i> Sign Up
+              </a>
+              <a href="login.html" class="btn-secondary-ams" id="role-student-login">
+                <i class="fa-solid fa-right-to-bracket"></i> Login
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CTA ==================== -->
+  <section class="cta-section" id="cta">
+    <div class="cta-bg"></div>
+    <div class="container position-relative animate-fade-up">
+      <div class="cta-box">
+        <div class="section-tag mb-3 d-inline-flex"><i class="fa-solid fa-rocket"></i> Get Started Today</div>
+        <h2 class="cta-title">Ready to Modernize Your<br /><span class="text-gradient">Attendance System?</span></h2>
+        <p class="cta-desc">Join your institution's AMS platform today. Students can sign up instantly, while teachers get their accounts from their department administrator.</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+          <a href="signup.html" class="btn-primary-ams btn-lg-ams" id="cta-signup">
+            <i class="fa-solid fa-user-plus"></i> Student Sign Up
+          </a>
+          <a href="login.html" class="btn-secondary-ams btn-lg-ams" id="cta-login">
+            <i class="fa-solid fa-right-to-bracket"></i> Login to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="ams-footer">
+    <div class="container">
+      <div class="row g-4 mb-3">
+        <div class="col-lg-4">
+          <div class="footer-brand">🎓 AMS <span class="text-gradient">Platform</span></div>
+          <p class="footer-text">A semester-based attendance management system built for modern educational institutions. Secure, fast, and easy to use.</p>
+        </div>
+        <div class="col-6 col-lg-2">
+          <div style="font-size:0.8rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.8rem;">Navigation</div>
+          <div class="d-flex flex-column gap-2">
+            <a href="index.html" class="footer-link">Home</a>
+            <a href="about.html" class="footer-link">About</a>
+            <a href="login.html" class="footer-link">Login</a>
+            <a href="signup.html" class="footer-link">Sign Up</a>
+          </div>
+        </div>
+        <div class="col-6 col-lg-2">
+          <div style="font-size:0.8rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.8rem;">Dashboards</div>
+          <div class="d-flex flex-column gap-2">
+            <a href="teacher-dashboard.html" class="footer-link">Teacher Dashboard</a>
+            <a href="student-dashboard.html" class="footer-link">Student Dashboard</a>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div style="font-size:0.8rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.8rem;">Tech Stack</div>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="ams-badge badge-primary">FastAPI</span>
+            <span class="ams-badge badge-primary">PostgreSQL</span>
+            <span class="ams-badge badge-primary">SQLAlchemy</span>
+            <span class="ams-badge badge-primary">JWT</span>
+            <span class="ams-badge badge-primary">Bootstrap 5</span>
+          </div>
+        </div>
+      </div>
+      <hr class="footer-divider" />
+      <p class="footer-copy">© 2026 Attendance Management System. Built with ❤️ for educational excellence.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Navbar scroll effect
+    const navbar = document.getElementById('mainNavbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) navbar.classList.add('scrolled');
+      else navbar.classList.remove('scrolled');
+    });
+
+    // Intersection observer for animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.style.animationPlayState = 'running'; }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.animate-fade-up').forEach(el => {
+      el.style.animationPlayState = 'paused';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>

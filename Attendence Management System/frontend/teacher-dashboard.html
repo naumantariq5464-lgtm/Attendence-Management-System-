@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Teacher Dashboard — Mark attendance for your assigned students." />
+  <title>Teacher Dashboard — AMS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body { display: flex; flex-direction: column; min-height: 100vh; }
+
+    .dashboard-layout { display: flex; flex: 1; }
+
+    .sidebar {
+      width: 260px; min-width: 260px;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      padding: 1.5rem 1rem;
+      display: flex; flex-direction: column;
+      position: sticky; top: 0;
+      height: 100vh; overflow-y: auto;
+    }
+
+    .sidebar-brand { display:flex;align-items:center;gap:0.7rem;padding:0.5rem 0.75rem 1.5rem;border-bottom:1px solid var(--border-color);margin-bottom:1.5rem;text-decoration:none; }
+    .sidebar-brand-icon { width:38px;height:38px;background:var(--gradient-primary);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem; }
+    .sidebar-brand-text { font-family:var(--font-display);font-weight:800;color:var(--text-primary);font-size:1.1rem; }
+    .sidebar-section-label { font-size:0.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;padding:0 0.75rem;margin-bottom:0.5rem; }
+    .sidebar-nav { list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:2px;margin-bottom:1.5rem; }
+    .sidebar-nav li a { display:flex;align-items:center;gap:0.75rem;padding:0.7rem 0.9rem;border-radius:var(--border-radius-sm);color:var(--text-secondary);font-size:0.88rem;font-weight:500;text-decoration:none;transition:var(--transition); }
+    .sidebar-nav li a:hover { background:rgba(108,99,255,0.07);color:var(--text-primary); }
+    .sidebar-nav li a.active { background:rgba(108,99,255,0.12);color:var(--primary-light);font-weight:600; }
+    .sidebar-nav li a .nav-icon { width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;background:rgba(108,99,255,0.08);flex-shrink:0; }
+    .sidebar-nav li a.active .nav-icon { background:rgba(108,99,255,0.2);color:var(--primary-light); }
+    .sidebar-profile { margin-top:auto;padding-top:1rem;border-top:1px solid var(--border-color); }
+    .sidebar-profile-card { display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border-radius:var(--border-radius-sm);background:var(--bg-card);border:1px solid var(--border-color); }
+    .profile-avatar { width:38px;height:38px;border-radius:50%;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#fff;font-family:var(--font-display);flex-shrink:0; }
+    .profile-name { font-weight:600;font-size:0.85rem;color:var(--text-primary); }
+    .profile-role { font-size:0.72rem;color:var(--text-muted); }
+    .sidebar-logout { width:28px;height:28px;border-radius:7px;border:1px solid var(--border-color);background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-left:auto;font-size:0.85rem;transition:var(--transition-fast);flex-shrink:0; }
+    .sidebar-logout:hover { background:rgba(255,77,109,0.1);color:var(--danger);border-color:var(--danger); }
+
+    .main-content { flex:1;padding:2rem;overflow-x:hidden;background:var(--bg-primary); }
+    .dashboard-topbar { display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem; }
+    .dashboard-greeting { font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:var(--text-primary);letter-spacing:-0.02em; }
+    .dashboard-date { font-size:0.82rem;color:var(--text-muted);margin-top:0.2rem; }
+    .panel-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.75rem; }
+    .panel-title { font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:0.6rem; }
+    .panel-icon { width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.88rem; }
+
+    /* Teacher info bar */
+    .teacher-info-bar {
+      background: linear-gradient(135deg, rgba(108,99,255,0.08) 0%, rgba(168,85,247,0.06) 100%);
+      border: 1px solid rgba(108,99,255,0.2);
+      border-radius: var(--border-radius-lg);
+      padding: 1.25rem 1.5rem;
+      display: flex; align-items: center; gap: 2rem;
+      margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+
+    .info-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; }
+    .info-item-label { color: var(--text-muted); font-weight: 500; }
+    .info-item-value { color: var(--text-primary); font-weight: 700; }
+
+    /* Attendance form */
+    .attendance-form-card { background:var(--gradient-card);border:1px solid var(--border-color);border-radius:var(--border-radius-lg);padding:1.75rem; }
+    .attendance-row { display:flex;align-items:center;padding:0.85rem 0;border-bottom:1px solid var(--border-color);gap:1rem; }
+    .attendance-row:last-child { border-bottom:none; }
+    .student-serial { width:28px;height:28px;border-radius:7px;background:rgba(108,99,255,0.1);color:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0; }
+    .student-info { flex:1; }
+    .student-name { font-weight:600;font-size:0.88rem;color:var(--text-primary); }
+    .student-email { font-size:0.75rem;color:var(--text-muted); }
+
+    /* Toast */
+    .toast-container { position:fixed;top:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.65rem; }
+    .toast-msg { background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--border-radius);padding:0.9rem 1.1rem;display:flex;align-items:center;gap:0.75rem;min-width:280px;max-width:360px;box-shadow:var(--shadow-lg);animation:slideInRight 0.3s ease;font-size:0.87rem;font-weight:500; }
+    .toast-msg.success { border-left:3px solid var(--success); }
+    .toast-msg.error   { border-left:3px solid var(--danger); }
+    .toast-msg.info    { border-left:3px solid var(--primary); }
+    @keyframes slideInRight { from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none} }
+
+    /* Mobile hamburger button */
+    .mobile-menu-btn {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 1100;
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-md);
+      transition: var(--transition);
+    }
+    .mobile-menu-btn:hover { background: rgba(108,99,255,0.15); border-color: var(--primary); }
+
+    /* Mobile Home Button */
+    .mobile-home-btn {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 1100;
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--gradient-primary);
+      border: none;
+      color: #fff;
+      font-size: 1.1rem;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(108,99,255,0.45);
+      transition: var(--transition);
+      text-decoration: none;
+    }
+    .mobile-home-btn:hover {
+      transform: translateY(-2px) scale(1.07);
+      box-shadow: 0 6px 22px rgba(108,99,255,0.6);
+      color: #fff;
+    }
+    .mobile-home-btn:active { transform: scale(0.96); }
+
+    /* Sidebar overlay backdrop */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1049;
+    }
+    .sidebar-overlay.active { display: block; }
+
+    /* Close button inside sidebar */
+    .sidebar-close-btn {
+      display: none;
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 1rem;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      margin-left: auto;
+      flex-shrink: 0;
+      transition: var(--transition-fast);
+    }
+    .sidebar-close-btn:hover { background: rgba(255,77,109,0.1); color: var(--danger); border-color: var(--danger); }
+
+    @media (max-width: 991.98px) {
+      .mobile-menu-btn { display: flex; }
+      .mobile-menu-btn.hidden { display: none; }
+      .mobile-home-btn { display: flex; }
+      .sidebar-close-btn { display: flex; }
+
+      .sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        height: 100vh;
+        z-index: 1050;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-lg);
+      }
+      .sidebar.mobile-open {
+        transform: translateX(0);
+      }
+
+      .main-content { padding: 4.5rem 1rem 1.5rem; }
+
+      .dashboard-topbar { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+      .dashboard-greeting { font-size: 1.25rem; }
+
+      .teacher-info-bar {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1rem;
+      }
+
+      .attendance-form-card { padding: 1.25rem; }
+
+      .attendance-row {
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        padding: 0.75rem 0;
+      }
+      .attendance-row .d-flex.gap-2 {
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .toast-container { top: 0.75rem; right: 0.75rem; left: 0.75rem; }
+      .toast-msg { min-width: auto; max-width: 100%; font-size: 0.82rem; }
+    }
+
+    @media (max-width: 575.98px) {
+      .main-content { padding: 4rem 0.75rem 1rem; }
+      .dashboard-greeting { font-size: 1.1rem; }
+      .stat-card { padding: 1rem; gap: 0.75rem; }
+      .stat-icon { width: 42px; height: 42px; font-size: 1.1rem; border-radius: 10px; }
+      .stat-value { font-size: 1.3rem; }
+      .stat-label { font-size: 0.7rem; }
+      .teacher-info-bar { font-size: 0.82rem; }
+      .btn-primary-ams { font-size: 0.82rem; padding: 0.55rem 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mobile Hamburger Button -->
+  <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileSidebar()" aria-label="Open menu">
+    <i class="fa-solid fa-bars" id="menuIcon"></i>
+  </button>
+
+  <!-- Mobile Home Button -->
+  <a href="index.html" class="mobile-home-btn" aria-label="Go to Home" title="Home">
+    <i class="fa-solid fa-house"></i>
+  </a>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+  <div class="dashboard-layout">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar" id="teacherSidebar">
+      <div class="sidebar-brand" style="display:flex;align-items:center;">
+        <a href="index.html" style="display:flex;align-items:center;gap:0.7rem;text-decoration:none;flex:1;">
+          <div class="sidebar-brand-icon">🎓</div>
+          <span class="sidebar-brand-text">AMS Platform</span>
+        </a>
+        <button class="sidebar-close-btn" id="sidebarCloseBtn" onclick="closeMobileSidebar()" aria-label="Close menu">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="sidebar-section-label">Main Menu</div>
+      <ul class="sidebar-nav">
+        <li><a href="#" class="active" id="nav-overview" onclick="showSection('overview')"><div class="nav-icon"><i class="fa-solid fa-gauge"></i></div> Overview</a></li>
+        <li><a href="#" id="nav-attendance" onclick="showSection('attendance')"><div class="nav-icon"><i class="fa-solid fa-calendar-check"></i></div> Mark Attendance</a></li>
+        <li><a href="#" id="nav-students" onclick="showSection('students')"><div class="nav-icon"><i class="fa-solid fa-users"></i></div> My Students</a></li>
+        <li><a href="#" id="nav-records" onclick="showSection('records')"><div class="nav-icon"><i class="fa-solid fa-table-list"></i></div> Records</a></li>
+        <li><a href="#" id="nav-feedback" onclick="showSection('feedback')"><div class="nav-icon"><i class="fa-solid fa-comment-dots"></i></div> Student Feedback</a></li>
+      </ul>
+
+      <div class="sidebar-profile">
+        <div class="sidebar-profile-card">
+          <div class="profile-avatar" id="teacher-avatar">T</div>
+          <div>
+            <div class="profile-name" id="teacher-profile-name">Teacher</div>
+            <div class="profile-role" id="teacher-profile-role">Teacher</div>
+          </div>
+          <button class="sidebar-logout" onclick="logout()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="main-content">
+
+      <!-- Teacher Info Bar -->
+      <div class="teacher-info-bar" id="teacher-info-bar">
+        <div class="info-item">
+          <i class="fa-solid fa-building-columns" style="color:var(--primary-light);"></i>
+          <span class="info-item-label">Department:</span>
+          <span class="info-item-value" id="info-dept">—</span>
+        </div>
+        <div class="info-item">
+          <i class="fa-solid fa-layer-group" style="color:var(--secondary);"></i>
+          <span class="info-item-label">Semester:</span>
+          <span class="info-item-value" id="info-sem">—</span>
+        </div>
+        <div class="info-item">
+          <i class="fa-solid fa-book" style="color:#a855f7;"></i>
+          <span class="info-item-label">Subject:</span>
+          <span class="info-item-value" id="info-subject">—</span>
+        </div>
+      </div>
+
+      <!-- ==================== OVERVIEW ==================== -->
+      <div id="section-overview">
+        <div class="dashboard-topbar">
+          <div>
+            <div class="dashboard-greeting"><span id="greeting-text">Good Evening</span>, <span class="text-gradient" id="greeting-name">Teacher</span> 👋</div>
+            <div class="dashboard-date" id="current-date-display"></div>
+          </div>
+          <button class="btn-primary-ams" onclick="showSection('attendance')"><i class="fa-solid fa-plus"></i> Mark Today's Attendance</button>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-users"></i></div>
+              <div><div class="stat-label">My Students</div><div class="stat-value" id="stat-students">0</div><div class="stat-sub" id="stat-students-sub">Auto-linked</div></div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-green"><i class="fa-solid fa-calendar-check"></i></div>
+              <div><div class="stat-label">Total Records</div><div class="stat-value" id="stat-records">0</div><div class="stat-sub">All time</div></div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-chart-bar"></i></div>
+              <div><div class="stat-label">Avg. Attendance</div><div class="stat-value" id="stat-avg">—</div><div class="stat-sub">Present %</div></div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-yellow"><i class="fa-solid fa-calendar-day"></i></div>
+              <div><div class="stat-label">Today</div><div class="stat-value" id="stat-today">0</div><div class="stat-sub">Marked today</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ams-card">
+          <div class="panel-header">
+            <div class="panel-title"><div class="panel-icon stat-icon-green"><i class="fa-solid fa-bolt"></i></div> Quick Actions</div>
+          </div>
+          <div class="d-flex flex-column gap-2" style="max-width:400px;">
+            <button class="btn-primary-ams w-100 justify-content-center" onclick="showSection('attendance')"><i class="fa-solid fa-calendar-check"></i> Mark Today's Attendance</button>
+            <button class="btn-secondary-ams w-100 justify-content-center" onclick="showSection('students')"><i class="fa-solid fa-users"></i> View My Students</button>
+            <button class="btn-secondary-ams w-100 justify-content-center" onclick="showSection('records')"><i class="fa-solid fa-table-list"></i> View All Records</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== MARK ATTENDANCE ==================== -->
+      <div id="section-attendance" class="d-none">
+        <div class="dashboard-topbar">
+          <div>
+            <div class="dashboard-greeting">Mark <span class="text-gradient">Attendance</span></div>
+            <div class="dashboard-date">Select a date and mark each student as Present or Absent</div>
+          </div>
+        </div>
+
+        <div class="attendance-form-card mb-3">
+          <div class="ams-form-group" style="max-width:300px;">
+            <label class="ams-label" for="att-date">Date *</label>
+            <input type="date" id="att-date" class="ams-input" />
+          </div>
+
+          <div class="divider"></div>
+
+          <div id="attendance-student-list">
+            <div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:0.9rem;">Loading students...</div>
+          </div>
+
+          <div class="divider"></div>
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div style="font-size:0.85rem;color:var(--text-secondary);">
+              <span id="present-count" style="color:var(--success);font-weight:700;">0</span> Present ·
+              <span id="absent-count" style="color:var(--danger);font-weight:700;">0</span> Absent ·
+              <span style="color:var(--text-muted);" id="total-count">0</span> Total
+            </div>
+            <button class="btn-primary-ams" onclick="submitAttendance()" id="submit-attendance-btn">
+              <i class="fa-solid fa-paper-plane"></i> Submit Attendance
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== STUDENTS LIST ==================== -->
+      <div id="section-students" class="d-none">
+        <div class="dashboard-topbar">
+          <div>
+            <div class="dashboard-greeting">My <span class="text-gradient">Students</span></div>
+            <div class="dashboard-date">Students auto-linked by matching department, semester, and subject</div>
+          </div>
+        </div>
+
+        <div class="ams-card">
+          <div class="panel-header">
+            <div class="panel-title"><div class="panel-icon stat-icon-purple"><i class="fa-solid fa-users"></i></div> Student List</div>
+          </div>
+          <div class="ams-table-wrapper">
+            <table class="ams-table" id="students-table">
+              <thead><tr><th>#</th><th>Full Name</th><th>Email</th><th>Department</th><th>Semester</th><th>Action</th></tr></thead>
+              <tbody id="students-tbody"></tbody>
+            </table>
+          </div>
+          <div id="no-students-msg" class="text-center py-4 d-none" style="color:var(--text-muted);font-size:0.9rem;">
+            <i class="fa-solid fa-users-slash" style="font-size:2rem;margin-bottom:0.75rem;display:block;opacity:0.3;"></i>
+            No students have selected your subject yet. Students will appear here automatically once they sign up and choose your subject.
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== RECORDS ==================== -->
+      <div id="section-records" class="d-none">
+        <div class="dashboard-topbar">
+          <div>
+            <div class="dashboard-greeting">Attendance <span class="text-gradient">Records</span></div>
+            <div class="dashboard-date">All attendance you have submitted — sorted by date</div>
+          </div>
+        </div>
+
+        <div class="ams-card">
+          <div class="panel-header">
+            <div class="panel-title"><div class="panel-icon stat-icon-blue"><i class="fa-solid fa-table-list"></i></div> All Records</div>
+            <input type="date" class="ams-input" style="width:auto;font-size:0.82rem;" id="filter-date" onchange="loadRecords()" />
+          </div>
+          <div class="ams-table-wrapper">
+            <table class="ams-table">
+              <thead><tr><th>#</th><th>Student</th><th>Date</th><th>Status</th></tr></thead>
+              <tbody id="records-tbody"></tbody>
+            </table>
+          </div>
+          <div id="no-records-msg" class="text-center py-4 d-none" style="color:var(--text-muted);font-size:0.9rem;">No attendance records found.</div>
+        </div>
+      </div>
+
+      <!-- ==================== STUDENT FEEDBACK ==================== -->
+      <div id="section-feedback" class="d-none">
+        <div class="dashboard-topbar">
+          <div>
+            <div class="dashboard-greeting">Student <span class="text-gradient">Feedback</span></div>
+            <div class="dashboard-date">Feedback submitted by your students — ratings and comments</div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-sm-4">
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-yellow"><i class="fa-solid fa-star"></i></div>
+              <div><div class="stat-label">Avg Rating</div><div class="stat-value" id="fb-avg-rating">—</div><div class="stat-sub">Out of 5</div></div>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-comments"></i></div>
+              <div><div class="stat-label">Total Feedback</div><div class="stat-value" id="fb-total-count">0</div><div class="stat-sub">From students</div></div>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-green"><i class="fa-solid fa-face-smile"></i></div>
+              <div><div class="stat-label">5-Star Reviews</div><div class="stat-value" id="fb-five-star">0</div><div class="stat-sub">Excellent</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="feedback-list"></div>
+        <div id="no-feedback-msg" class="text-center py-5 d-none">
+          <i class="fa-solid fa-comment-slash" style="font-size:2.5rem;color:var(--text-muted);opacity:0.3;display:block;margin-bottom:1rem;"></i>
+          <div style="color:var(--text-muted);font-size:0.95rem;">No feedback received yet.</div>
+          <div style="color:var(--text-muted);font-size:0.82rem;margin-top:0.3rem;">When students submit feedback, it will appear here.</div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" id="teacher-toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    // Guard
+    requireAuth('teacher');
+
+    const sections = ['overview','attendance','students','records','feedback'];
+    let studentsList = [];
+    let attendanceState = {};
+
+    function showSection(name) {
+      sections.forEach(s => {
+        document.getElementById('section-' + s).classList.toggle('d-none', s !== name);
+        const n = document.getElementById('nav-' + s);
+        if(n) n.classList.toggle('active', s === name);
+      });
+      if (name === 'attendance') loadStudentsForAttendance();
+      if (name === 'students') loadStudents();
+      if (name === 'records') loadRecords();
+      if (name === 'feedback') loadFeedback();
+      window.scrollTo(0, 0);
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('teacher-toast-container');
+      const icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info' };
+      const colors = { success:'var(--success)', error:'var(--danger)', info:'var(--primary-light)' };
+      const toast = document.createElement('div');
+      toast.className = 'toast-msg ' + type;
+      toast.innerHTML = `<i class="fa-solid ${icons[type]}" style="color:${colors[type]};font-size:1rem;"></i> ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.style.opacity='0'; toast.style.transform='translateX(30px)'; toast.style.transition='all 0.3s'; setTimeout(()=>toast.remove(),300); }, 3500);
+    }
+
+    // ---- Init ----
+    function initUser() {
+      const user = getUser();
+      if (!user) return;
+      document.getElementById('teacher-profile-name').textContent = user.name;
+      document.getElementById('teacher-profile-role').textContent = user.subject || 'Teacher';
+      document.getElementById('teacher-avatar').textContent = user.name.charAt(0).toUpperCase();
+      document.getElementById('greeting-name').textContent = user.name.split(' ')[0];
+      document.getElementById('greeting-text').textContent = getGreeting();
+      document.getElementById('info-dept').textContent = user.department;
+      document.getElementById('info-sem').textContent = 'Semester ' + user.semester;
+      document.getElementById('info-subject').textContent = user.subject || '—';
+
+      const now = new Date();
+      document.getElementById('current-date-display').textContent = now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+      // Set default attendance date to today
+      const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
+      document.getElementById('att-date').value = `${y}-${m}-${d}`;
+    }
+
+    // ---- Load Students ----
+    async function loadStudents() {
+      try {
+        const res = await authFetch('/api/teacher/students');
+        if (!res.ok) return;
+        studentsList = await res.json();
+
+        document.getElementById('stat-students').textContent = studentsList.length;
+
+        const tbody = document.getElementById('students-tbody');
+        const noMsg = document.getElementById('no-students-msg');
+
+        if (studentsList.length === 0) { tbody.innerHTML = ''; noMsg.classList.remove('d-none'); return; }
+        noMsg.classList.add('d-none');
+
+        tbody.innerHTML = studentsList.map((s, i) => `
+          <tr id="student-row-${s.id}">
+            <td>${i+1}</td>
+            <td style="font-weight:600;color:var(--text-primary);">${s.name}</td>
+            <td style="color:var(--text-secondary);">${s.email}</td>
+            <td>${s.department}</td>
+            <td style="text-align:center;">${s.semester}</td>
+            <td>
+              <button class="btn-danger-ams" style="padding:0.35rem 0.75rem;font-size:0.78rem;" onclick="deleteStudent(${s.id}, '${s.name.replace(/'/g, "\\'")}')"
+                title="Remove student">
+                <i class="fa-solid fa-trash"></i> Delete
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      } catch(err) { console.error(err); }
+    }
+
+    // ---- Delete Student ----
+    async function deleteStudent(studentId, studentName) {
+      if (!confirm(`Are you sure you want to delete "${studentName}"? This will also remove all their attendance records.`)) return;
+      try {
+        const res = await authFetch(`/api/teacher/students/${studentId}`, { method: 'DELETE' });
+        if (!res || !res.ok) {
+          const d = await res.json();
+          showToast(d.detail || 'Failed to delete student', 'error');
+          return;
+        }
+        const data = await res.json();
+        showToast(data.message, 'success');
+        loadStudents();
+        loadOverviewStats();
+      } catch(err) {
+        showToast('Failed to delete student', 'error');
+        console.error(err);
+      }
+    }
+
+    // ---- Load Students for Attendance ----
+    async function loadStudentsForAttendance() {
+      try {
+        const res = await authFetch('/api/teacher/students');
+        if (!res.ok) return;
+        studentsList = await res.json();
+        document.getElementById('stat-students').textContent = studentsList.length;
+
+        const container = document.getElementById('attendance-student-list');
+        if (studentsList.length === 0) {
+          container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:0.9rem;"><i class="fa-solid fa-users-slash" style="font-size:2rem;margin-bottom:0.75rem;display:block;opacity:0.3;"></i>No students linked to your subject yet.</div>';
+          return;
+        }
+
+        attendanceState = {};
+        studentsList.forEach(s => attendanceState[s.id] = 'PRESENT');
+
+        container.innerHTML = studentsList.map((s, i) => `
+          <div class="attendance-row" id="att-row-${s.id}">
+            <div class="student-serial">${i+1}</div>
+            <div class="student-info">
+              <div class="student-name">${s.name}</div>
+              <div class="student-email">${s.email}</div>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn-success-ams" id="btn-p-${s.id}" style="padding:0.4rem 1rem;font-size:0.8rem;" onclick="setStatus(${s.id},'PRESENT')">
+                <i class="fa-solid fa-check"></i> Present
+              </button>
+              <button class="btn-secondary-ams" id="btn-a-${s.id}" style="padding:0.4rem 1rem;font-size:0.8rem;" onclick="setStatus(${s.id},'ABSENT')">
+                <i class="fa-solid fa-xmark"></i> Absent
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+        updateCounts();
+      } catch(err) { console.error(err); }
+    }
+
+    function setStatus(studentId, status) {
+      attendanceState[studentId] = status;
+      const pBtn = document.getElementById('btn-p-' + studentId);
+      const aBtn = document.getElementById('btn-a-' + studentId);
+      if (status === 'PRESENT') {
+        pBtn.className = 'btn-success-ams'; pBtn.style.cssText = 'padding:0.4rem 1rem;font-size:0.8rem;';
+        aBtn.className = 'btn-secondary-ams'; aBtn.style.cssText = 'padding:0.4rem 1rem;font-size:0.8rem;';
+      } else {
+        pBtn.className = 'btn-secondary-ams'; pBtn.style.cssText = 'padding:0.4rem 1rem;font-size:0.8rem;';
+        aBtn.className = 'btn-danger-ams'; aBtn.style.cssText = 'padding:0.4rem 1rem;font-size:0.8rem;';
+      }
+      updateCounts();
+    }
+
+    function updateCounts() {
+      const vals = Object.values(attendanceState);
+      const p = vals.filter(v => v === 'PRESENT').length;
+      const a = vals.filter(v => v === 'ABSENT').length;
+      document.getElementById('present-count').textContent = p;
+      document.getElementById('absent-count').textContent = a;
+      document.getElementById('total-count').textContent = vals.length;
+    }
+
+    async function submitAttendance() {
+      const date = document.getElementById('att-date').value;
+      if (!date) { showToast('Please select a date', 'error'); return; }
+      if (Object.keys(attendanceState).length === 0) { showToast('No students to mark', 'error'); return; }
+
+      const records = Object.entries(attendanceState).map(([id, status]) => ({
+        student_id: parseInt(id), status
+      }));
+
+      const btn = document.getElementById('submit-attendance-btn');
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+      btn.disabled = true;
+
+      try {
+        const res = await authFetch('/api/teacher/attendance', {
+          method: 'POST',
+          body: JSON.stringify({ date, records }),
+        });
+        if (!res.ok) { const d = await res.json(); throw new Error(d.detail || 'Failed'); }
+        const data = await res.json();
+        showToast(data.message, 'success');
+        loadOverviewStats();
+      } catch(err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Attendance';
+        btn.disabled = false;
+      }
+    }
+
+    // ---- Load Records ----
+    async function loadRecords() {
+      try {
+        const filterDate = document.getElementById('filter-date').value;
+        let url = '/api/teacher/attendance';
+        if (filterDate) url += '?date=' + filterDate;
+
+        const res = await authFetch(url);
+        if (!res.ok) return;
+        const records = await res.json();
+
+        const tbody = document.getElementById('records-tbody');
+        const noMsg = document.getElementById('no-records-msg');
+
+        if (records.length === 0) { tbody.innerHTML = ''; noMsg.classList.remove('d-none'); return; }
+        noMsg.classList.add('d-none');
+
+        tbody.innerHTML = records.map((r, i) => {
+          const statusBadge = r.status === 'PRESENT'
+            ? '<span class="ams-badge" style="background:rgba(40,224,143,0.1);color:var(--success);border:1px solid rgba(40,224,143,0.2);">Present</span>'
+            : '<span class="ams-badge" style="background:rgba(255,77,109,0.1);color:var(--danger);border:1px solid rgba(255,77,109,0.2);">Absent</span>';
+          return `<tr><td>${i+1}</td><td style="font-weight:600;color:var(--text-primary);">${r.student_name}</td><td>${formatDate(r.date)}</td><td>${statusBadge}</td></tr>`;
+        }).join('');
+
+        document.getElementById('stat-records').textContent = records.length;
+      } catch(err) { console.error(err); }
+    }
+
+    // ---- Overview Stats ----
+    async function loadOverviewStats() {
+      try {
+        const [studRes, recRes] = await Promise.all([
+          authFetch('/api/teacher/students'),
+          authFetch('/api/teacher/attendance'),
+        ]);
+        if (studRes.ok) {
+          const students = await studRes.json();
+          document.getElementById('stat-students').textContent = students.length;
+        }
+        if (recRes.ok) {
+          const records = await recRes.json();
+          document.getElementById('stat-records').textContent = records.length;
+          const today = new Date().toISOString().split('T')[0];
+          const todayRecs = records.filter(r => r.date === today);
+          document.getElementById('stat-today').textContent = todayRecs.length;
+          const present = records.filter(r => r.status === 'PRESENT').length;
+          const pct = records.length > 0 ? Math.round((present / records.length) * 100) : 0;
+          document.getElementById('stat-avg').textContent = pct + '%';
+        }
+      } catch(err) { console.error(err); }
+    }
+
+    // ---- Mobile Sidebar ----
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('teacherSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const menuBtn = document.getElementById('mobileMenuBtn');
+      const isOpen = sidebar.classList.contains('mobile-open');
+      if (isOpen) {
+        closeMobileSidebar();
+      } else {
+        sidebar.classList.add('mobile-open');
+        overlay.classList.add('active');
+        menuBtn.classList.add('hidden');
+      }
+    }
+    function closeMobileSidebar() {
+      const sidebar = document.getElementById('teacherSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const menuBtn = document.getElementById('mobileMenuBtn');
+      sidebar.classList.remove('mobile-open');
+      overlay.classList.remove('active');
+      menuBtn.classList.remove('hidden');
+    }
+    // Close sidebar on nav click (mobile)
+    document.querySelectorAll('.sidebar-nav a').forEach(link => {
+      link.addEventListener('click', () => { if (window.innerWidth < 992) closeMobileSidebar(); });
+    });
+
+    // ---- Load Feedback ----
+    async function loadFeedback() {
+      try {
+        const res = await authFetch('/api/teacher/feedback');
+        if (!res || !res.ok) return;
+        const feedbacks = await res.json();
+
+        const listEl = document.getElementById('feedback-list');
+        const noMsg = document.getElementById('no-feedback-msg');
+
+        // Update stats
+        document.getElementById('fb-total-count').textContent = feedbacks.length;
+        if (feedbacks.length === 0) {
+          listEl.innerHTML = '';
+          noMsg.classList.remove('d-none');
+          document.getElementById('fb-avg-rating').textContent = '—';
+          document.getElementById('fb-five-star').textContent = '0';
+          return;
+        }
+        noMsg.classList.add('d-none');
+
+        const avgRating = (feedbacks.reduce((sum, f) => sum + f.rating, 0) / feedbacks.length).toFixed(1);
+        const fiveStars = feedbacks.filter(f => f.rating === 5).length;
+        document.getElementById('fb-avg-rating').textContent = avgRating;
+        document.getElementById('fb-five-star').textContent = fiveStars;
+
+        listEl.innerHTML = feedbacks.map(f => {
+          const stars = Array.from({length: 5}, (_, i) =>
+            `<i class="fa-solid fa-star" style="color:${i < f.rating ? 'var(--warning)' : 'var(--text-muted)'};font-size:0.9rem;"></i>`
+          ).join('');
+
+          const dateStr = f.created_at
+            ? new Date(f.created_at).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })
+            : '—';
+
+          const initials = f.student_name ? f.student_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) : '?';
+
+          return `
+            <div class="ams-card mb-3" style="cursor:default;">
+              <div class="d-flex align-items-start gap-3">
+                <div class="profile-avatar" style="width:44px;height:44px;font-size:0.85rem;flex-shrink:0;background:var(--gradient-secondary);">${initials}</div>
+                <div style="flex:1;min-width:0;">
+                  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                    <div>
+                      <div style="font-weight:700;font-size:0.95rem;color:var(--text-primary);">${f.student_name}</div>
+                      <div style="font-size:0.75rem;color:var(--text-muted);">${f.student_email || ''}</div>
+                    </div>
+                    <div style="text-align:right;">
+                      <div>${stars}</div>
+                      <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;"><i class="fa-regular fa-clock"></i> ${dateStr}</div>
+                    </div>
+                  </div>
+                  <div style="background:rgba(108,99,255,0.05);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);padding:0.85rem 1rem;font-size:0.88rem;color:var(--text-secondary);line-height:1.6;">
+                    <i class="fa-solid fa-quote-left" style="color:var(--primary);opacity:0.4;margin-right:0.4rem;"></i>${f.comment}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch(err) { console.error('Feedback load error:', err); }
+    }
+
+    // ---- INIT ----
+    initUser();
+    loadOverviewStats();
+  </script>
+</body>
+</html>

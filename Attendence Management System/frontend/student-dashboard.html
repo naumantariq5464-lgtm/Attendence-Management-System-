@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Student Dashboard — View your attendance, download PDF reports, and submit teacher feedback." />
+  <title>Student Dashboard — AMS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body { display: flex; flex-direction: column; min-height: 100vh; }
+    .dashboard-layout { display: flex; flex: 1; }
+    .sidebar { width:250px;min-width:250px;background:var(--bg-secondary);border-right:1px solid var(--border-color);padding:1.5rem 1rem;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto; }
+    .sidebar-brand { display:flex;align-items:center;gap:0.7rem;padding:0.5rem 0.75rem 1.5rem;border-bottom:1px solid var(--border-color);margin-bottom:1.5rem;text-decoration:none; }
+    .sidebar-brand-icon { width:38px;height:38px;background:var(--gradient-secondary);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem; }
+    .sidebar-brand-text { font-family:var(--font-display);font-weight:800;color:var(--text-primary);font-size:1.1rem; }
+    .sidebar-section-label { font-size:0.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;padding:0 0.75rem;margin-bottom:0.5rem; }
+    .sidebar-nav { list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:2px;margin-bottom:1.5rem; }
+    .sidebar-nav li a { display:flex;align-items:center;gap:0.75rem;padding:0.7rem 0.9rem;border-radius:var(--border-radius-sm);color:var(--text-secondary);font-size:0.88rem;font-weight:500;text-decoration:none;transition:var(--transition); }
+    .sidebar-nav li a:hover { background:rgba(0,212,170,0.06);color:var(--text-primary); }
+    .sidebar-nav li a.active { background:rgba(0,212,170,0.1);color:var(--secondary);font-weight:600; }
+    .nav-icon { width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;background:rgba(0,212,170,0.08);flex-shrink:0; }
+    .sidebar-nav li a.active .nav-icon { background:rgba(0,212,170,0.18);color:var(--secondary); }
+    .sidebar-profile { margin-top:auto;padding-top:1rem;border-top:1px solid var(--border-color); }
+    .sidebar-profile-card { display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border-radius:var(--border-radius-sm);background:var(--bg-card);border:1px solid var(--border-color); }
+    .profile-avatar-student { width:38px;height:38px;border-radius:50%;background:var(--gradient-secondary);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#fff;font-family:var(--font-display);flex-shrink:0; }
+    .profile-name { font-weight:600;font-size:0.85rem;color:var(--text-primary); }
+    .profile-role { font-size:0.72rem;color:var(--text-muted); }
+    .sidebar-logout { width:28px;height:28px;border-radius:7px;border:1px solid var(--border-color);background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-left:auto;font-size:0.85rem;transition:var(--transition-fast);flex-shrink:0; }
+    .sidebar-logout:hover { background:rgba(255,77,109,0.1);color:var(--danger);border-color:var(--danger); }
+    .main-content { flex:1;padding:2rem;overflow-x:hidden;background:var(--bg-primary); }
+    .dashboard-topbar { display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem; }
+    .dashboard-greeting { font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:var(--text-primary);letter-spacing:-0.02em; }
+    .dashboard-date { font-size:0.82rem;color:var(--text-muted);margin-top:0.2rem; }
+    .panel-title { font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:0.6rem; }
+    .panel-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.75rem; }
+    .panel-icon { width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.88rem; }
+
+    /* Subject Selection Screen */
+    .subject-selection-screen { max-width: 600px; margin: 0 auto; padding-top: 2rem; }
+    .subject-card {
+      background: var(--gradient-card); border: 2px solid var(--border-color);
+      border-radius: var(--border-radius-lg); padding: 1.5rem; cursor: pointer;
+      transition: var(--transition); position: relative;
+    }
+    .subject-card:hover { border-color: var(--secondary); transform: translateY(-2px); }
+    .subject-card.selected { border-color: var(--secondary); background: rgba(0,212,170,0.06); }
+    .subject-card.selected::after { content:'✓'; position:absolute; top:0.6rem; right:0.8rem; width:22px; height:22px; background:var(--secondary); color:#fff; border-radius:50%; font-size:0.7rem; display:flex; align-items:center; justify-content:center; font-weight:700; }
+
+    /* Teacher Info Card */
+    .teacher-info-card {
+      background: linear-gradient(135deg, rgba(0,212,170,0.08) 0%, rgba(108,99,255,0.06) 100%);
+      border: 1px solid rgba(0,212,170,0.2);
+      border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem;
+      display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .teacher-avatar { width:45px;height:45px;border-radius:50%;background:var(--gradient-secondary);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:#fff; flex-shrink:0; }
+
+    /* Ring */
+    .overall-ring-card { background:var(--gradient-card);border:1px solid var(--border-color);border-radius:var(--border-radius-lg);padding:2rem;text-align:center;height:100%; }
+    .ring-container { width:140px;height:140px;border-radius:50%;background:conic-gradient(var(--success) 0deg,var(--success) calc(var(--pct)*3.6deg),rgba(108,99,255,0.1) 0);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem; }
+    .ring-inner { width:108px;height:108px;background:var(--bg-card);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center; }
+    .ring-pct { font-family:var(--font-display);font-size:1.8rem;font-weight:800;color:var(--text-primary);line-height:1; }
+    .ring-label { font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em; }
+
+    /* PDF card */
+    .pdf-card { background:linear-gradient(135deg,rgba(108,99,255,0.1) 0%,rgba(168,85,247,0.08) 100%);border:1px solid rgba(108,99,255,0.2);border-radius:var(--border-radius-lg);padding:2rem; }
+    .feedback-card { background:var(--gradient-card);border:1px solid var(--border-color);border-radius:var(--border-radius-lg);padding:2rem; }
+
+    /* Toast */
+    .toast-container { position:fixed;top:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.65rem; }
+    .toast-msg { background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--border-radius);padding:0.9rem 1.1rem;display:flex;align-items:center;gap:0.75rem;min-width:280px;max-width:360px;box-shadow:var(--shadow-lg);animation:slideInRight 0.3s ease;font-size:0.87rem;font-weight:500; }
+    .toast-msg.success { border-left:3px solid var(--success); }
+    .toast-msg.error   { border-left:3px solid var(--danger); }
+    .toast-msg.warning { border-left:3px solid var(--warning); }
+    .toast-msg.info    { border-left:3px solid var(--primary); }
+    @keyframes slideInRight { from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none} }
+
+    /* Mobile hamburger button */
+    .mobile-menu-btn {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 1100;
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-md);
+      transition: var(--transition);
+    }
+    .mobile-menu-btn:hover { background: rgba(0,212,170,0.15); border-color: var(--secondary); }
+
+    /* Mobile Home Button */
+    .mobile-home-btn {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 1100;
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--gradient-secondary);
+      border: none;
+      color: #fff;
+      font-size: 1.1rem;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(0,212,170,0.45);
+      transition: var(--transition);
+      text-decoration: none;
+    }
+    .mobile-home-btn:hover {
+      transform: translateY(-2px) scale(1.07);
+      box-shadow: 0 6px 22px rgba(0,212,170,0.6);
+      color: #fff;
+    }
+    .mobile-home-btn:active { transform: scale(0.96); }
+
+    /* Sidebar overlay backdrop */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1049;
+    }
+    .sidebar-overlay.active { display: block; }
+
+    /* Close button inside sidebar */
+    .sidebar-close-btn {
+      display: none;
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 1rem;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      margin-left: auto;
+      flex-shrink: 0;
+      transition: var(--transition-fast);
+    }
+    .sidebar-close-btn:hover { background: rgba(255,77,109,0.1); color: var(--danger); border-color: var(--danger); }
+
+    @media (max-width: 991.98px) {
+      .mobile-menu-btn { display: flex; }
+      .mobile-menu-btn.hidden { display: none; }
+      .mobile-home-btn { display: flex; }
+      .sidebar-close-btn { display: flex; }
+
+      .sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        height: 100vh;
+        z-index: 1050;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-lg);
+      }
+      .sidebar.mobile-open {
+        transform: translateX(0);
+      }
+
+      .main-content { padding: 4.5rem 1rem 1.5rem; }
+
+      .dashboard-topbar { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+      .dashboard-greeting { font-size: 1.25rem; }
+
+      .teacher-info-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+        padding: 1rem;
+      }
+
+      .overall-ring-card { padding: 1.5rem; }
+      .ring-container { width: 120px; height: 120px; }
+      .ring-inner { width: 92px; height: 92px; }
+      .ring-pct { font-size: 1.5rem; }
+
+      .subject-selection-screen { padding-top: 0.5rem; }
+
+      .pdf-card { padding: 1.5rem; }
+      .feedback-card { padding: 1.5rem; }
+
+      .toast-container { top: 0.75rem; right: 0.75rem; left: 0.75rem; }
+      .toast-msg { min-width: auto; max-width: 100%; font-size: 0.82rem; }
+    }
+
+    @media (max-width: 575.98px) {
+      .main-content { padding: 4rem 0.75rem 1rem; }
+      .dashboard-greeting { font-size: 1.1rem; }
+      .stat-card { padding: 1rem; gap: 0.75rem; }
+      .stat-icon { width: 42px; height: 42px; font-size: 1.1rem; border-radius: 10px; }
+      .stat-value { font-size: 1.3rem; }
+      .stat-label { font-size: 0.7rem; }
+      .btn-success-ams { font-size: 0.82rem; padding: 0.55rem 1.1rem; }
+      .btn-primary-ams { font-size: 0.82rem; padding: 0.55rem 1.1rem; }
+      .subject-card { padding: 1.1rem; }
+      .ring-container { width: 110px; height: 110px; }
+      .ring-inner { width: 84px; height: 84px; }
+      .ring-pct { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mobile Hamburger Button -->
+  <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleStudentMobileSidebar()" aria-label="Open menu">
+    <i class="fa-solid fa-bars" id="menuIconStudent"></i>
+  </button>
+
+  <!-- Mobile Home Button -->
+  <a href="index.html" class="mobile-home-btn" aria-label="Go to Home" title="Home">
+    <i class="fa-solid fa-house"></i>
+  </a>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeStudentMobileSidebar()"></div>
+
+  <div class="dashboard-layout">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar" id="studentSidebar">
+      <div class="sidebar-brand" style="display:flex;align-items:center;">
+        <a href="index.html" style="display:flex;align-items:center;gap:0.7rem;text-decoration:none;flex:1;">
+          <div class="sidebar-brand-icon">🎓</div>
+          <span class="sidebar-brand-text">AMS Platform</span>
+        </a>
+        <button class="sidebar-close-btn" id="sidebarCloseBtn" onclick="closeStudentMobileSidebar()" aria-label="Close menu">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="sidebar-section-label">My Dashboard</div>
+      <ul class="sidebar-nav">
+        <li><a href="#" class="active" id="snav-overview" onclick="showStudentSection('overview')"><div class="nav-icon"><i class="fa-solid fa-gauge"></i></div> Overview</a></li>
+        <li><a href="#" id="snav-attendance" onclick="showStudentSection('attendance')"><div class="nav-icon"><i class="fa-solid fa-calendar-check"></i></div> My Attendance</a></li>
+        <li><a href="#" id="snav-pdf" onclick="showStudentSection('pdf')"><div class="nav-icon"><i class="fa-solid fa-file-pdf"></i></div> Download PDF</a></li>
+        <li><a href="#" id="snav-feedback" onclick="showStudentSection('feedback')"><div class="nav-icon"><i class="fa-solid fa-comment-dots"></i></div> Feedback</a></li>
+      </ul>
+
+      <div class="sidebar-profile">
+        <div class="sidebar-profile-card">
+          <div class="profile-avatar-student" id="student-avatar"></div>
+          <div>
+            <div class="profile-name" id="student-sidebar-name"></div>
+            <div class="profile-role" id="student-sidebar-role">Student</div>
+          </div>
+          <button class="sidebar-logout" onclick="logout()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN ==================== -->
+    <main class="main-content">
+
+      <!-- SUBJECT SELECTION REMOVED -->
+
+      <!-- ==================== OVERVIEW ==================== -->
+      <div id="s-section-overview" class="d-none">
+        <div class="dashboard-topbar">
+          <div>
+            <div class="dashboard-greeting">Hello, <span class="text-gradient-green" id="student-greeting-name"></span> 👋</div>
+            <div class="dashboard-date" id="student-date-display"></div>
+          </div>
+          <button class="btn-success-ams" onclick="showStudentSection('pdf')" id="btn-download-pdf-top">
+            <i class="fa-solid fa-file-pdf"></i> Download PDF Report
+          </button>
+        </div>
+
+        <!-- Teacher Info Removed -->
+
+        <!-- Stats -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-green"><i class="fa-solid fa-check-circle"></i></div>
+              <div><div class="stat-label">Overall Attendance</div><div class="stat-value" style="color:var(--success);" id="s-stat-overall">—</div><div class="stat-sub">All subjects</div></div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-book"></i></div>
+              <div><div class="stat-label">Subjects Enrolled</div><div class="stat-value" id="s-stat-subject">0</div><div class="stat-sub" id="s-stat-subject-sub"></div></div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-calendar-check"></i></div>
+              <div><div class="stat-label">Classes Present</div><div class="stat-value" id="s-stat-present">0</div><div class="stat-sub" id="s-stat-present-sub"></div></div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-red"><i class="fa-solid fa-calendar-xmark"></i></div>
+              <div><div class="stat-label">Classes Absent</div><div class="stat-value" id="s-stat-absent" style="color:var(--danger);">0</div><div class="stat-sub" id="s-stat-absent-sub"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ring + Progress -->
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="overall-ring-card">
+              <div style="font-family:var(--font-display);font-weight:700;font-size:1rem;color:var(--text-primary);margin-bottom:1rem;">Overall Attendance</div>
+              <div class="ring-container" id="s-ring-container" style="--pct:0;">
+                <div class="ring-inner">
+                  <div class="ring-pct" id="s-ring-pct">0%</div>
+                  <div class="ring-label">Overall</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="ams-card h-100">
+              <div class="panel-header">
+                <div class="panel-title"><div class="panel-icon stat-icon-green"><i class="fa-solid fa-bars-progress"></i></div> Attendance Summary</div>
+              </div>
+              <div class="d-flex flex-column gap-3" id="subject-progress-list">
+                <div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:0.85rem;">Loading...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== MY ATTENDANCE ==================== -->
+      <div id="s-section-attendance" class="d-none">
+        <div class="dashboard-topbar">
+          <div>
+            <div class="dashboard-greeting">My <span class="text-gradient-green">Attendance</span></div>
+            <div class="dashboard-date">Your attendance records</div>
+          </div>
+        </div>
+        <div class="ams-card">
+          <div class="panel-header">
+            <div class="panel-title"><div class="panel-icon stat-icon-green"><i class="fa-solid fa-table"></i></div> Attendance Records</div>
+          </div>
+          <div class="ams-table-wrapper">
+            <table class="ams-table">
+              <thead><tr><th>#</th><th>Subject</th><th>Date</th><th>Day</th><th>Status</th></tr></thead>
+              <tbody id="attendance-tbody"></tbody>
+            </table>
+          </div>
+          <div id="no-attendance-msg" class="text-center py-4 d-none" style="color:var(--text-muted);font-size:0.9rem;">No attendance records yet.</div>
+        </div>
+      </div>
+
+      <!-- ==================== PDF DOWNLOAD ==================== -->
+      <div id="s-section-pdf" class="d-none">
+        <div class="dashboard-topbar">
+          <div>
+            <div class="dashboard-greeting">Download <span class="text-gradient">PDF Report</span></div>
+            <div class="dashboard-date">Generate your monthly attendance certificate</div>
+          </div>
+        </div>
+        <div class="row g-3">
+          <div class="col-lg-6">
+            <div class="pdf-card">
+              <div class="d-flex align-items-center gap-3 mb-2">
+                <div class="stat-icon stat-icon-purple" style="width:52px;height:52px;border-radius:14px;font-size:1.4rem;"><i class="fa-solid fa-file-pdf"></i></div>
+                <div>
+                  <div style="font-family:var(--font-display);font-weight:700;font-size:1.1rem;color:var(--text-primary);">Monthly Attendance Report</div>
+                  <div style="font-size:0.82rem;color:var(--text-secondary);">Select a completed month to generate your PDF</div>
+                </div>
+              </div>
+              <hr style="border-color:var(--border-color);margin:1.25rem 0;" />
+              <div class="ams-form-group">
+                <label class="ams-label" for="pdf-month">Select Month *</label>
+                <div class="input-icon-wrapper">
+                  <span class="input-icon"><i class="fa-solid fa-calendar"></i></span>
+                  <input type="month" id="pdf-month" class="ams-input" />
+                </div>
+              </div>
+              <button class="btn-primary-ams w-100 justify-content-center" style="padding:0.9rem;" onclick="downloadPDF()" id="download-pdf-btn">
+                <i class="fa-solid fa-cloud-arrow-down"></i> Generate & Download PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== FEEDBACK ==================== -->
+      <div id="s-section-feedback" class="d-none">
+        <div class="dashboard-topbar">
+          <div>
+            <div class="dashboard-greeting">Teacher <span class="text-gradient">Feedback</span></div>
+            <div class="dashboard-date">Submit a rating and comment for your teacher</div>
+          </div>
+        </div>
+        <div class="row g-3">
+          <div class="col-lg-7">
+            <div class="feedback-card">
+              <div class="panel-header mb-0">
+                <div class="panel-title"><div class="panel-icon stat-icon-purple" style="background:rgba(168,85,247,0.1);color:#a855f7;"><i class="fa-solid fa-comment-dots"></i></div> Submit Feedback</div>
+              </div>
+              <div class="divider"></div>
+              <form id="feedbackForm" onsubmit="submitFeedback(event)">
+                <div class="ams-form-group">
+                  <label class="ams-label">Teacher</label>
+                  <select id="feedback-teacher-id" class="ams-input" required>
+                    <option value="">Select a teacher...</option>
+                  </select>
+                </div>
+                <div class="ams-form-group">
+                  <label class="ams-label">Rating *</label>
+                  <div class="star-rating" id="star-rating-group">
+                    <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="5 - Excellent">★</label>
+                    <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 - Good">★</label>
+                    <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 - Average">★</label>
+                    <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 - Poor">★</label>
+                    <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 - Very Poor">★</label>
+                  </div>
+                  <div id="rating-label" style="font-size:0.8rem;color:var(--text-muted);margin-top:0.4rem;">Select a rating (1 = Very Poor, 5 = Excellent)</div>
+                </div>
+                <div class="ams-form-group">
+                  <label class="ams-label" for="feedback-comment">Comment *</label>
+                  <textarea id="feedback-comment" class="ams-textarea" placeholder="Write your feedback (minimum 10 characters)" required minlength="10"></textarea>
+                </div>
+                <button type="submit" class="btn-primary-ams w-100 justify-content-center" style="padding:0.85rem;" id="feedback-submit-btn">
+                  <i class="fa-solid fa-paper-plane"></i> Submit Feedback
+                </button>
+              </form>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="ams-card">
+              <div class="panel-title mb-3"><div class="panel-icon" style="background:rgba(0,212,170,0.1);color:var(--secondary);"><i class="fa-solid fa-clock-rotate-left"></i></div> Your Past Feedback</div>
+              <div id="past-feedback-list" class="d-flex flex-column gap-3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" id="student-toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    // Guard
+    requireAuth('student');
+
+    const studentSections = ['overview','attendance','pdf','feedback'];
+    let myTeachers = [];
+
+    function showStudentSection(name) {
+      studentSections.forEach(s => {
+        const el = document.getElementById('s-section-' + s);
+        if (el) el.classList.toggle('d-none', s !== name);
+        const navEl = document.getElementById('snav-' + s);
+        if (navEl) navEl.classList.toggle('active', s === name);
+      });
+      if (name === 'attendance') loadAttendanceRecords();
+      if (name === 'feedback') loadFeedback();
+      window.scrollTo(0, 0);
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('student-toast-container');
+      const icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info', warning:'fa-triangle-exclamation' };
+      const colors = { success:'var(--success)', error:'var(--danger)', info:'var(--primary-light)', warning:'var(--warning)' };
+      const toast = document.createElement('div');
+      toast.className = 'toast-msg ' + type;
+      toast.innerHTML = `<i class="fa-solid ${icons[type]}" style="color:${colors[type]};font-size:1rem;"></i> ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.style.opacity='0'; toast.style.transform='translateX(30px)'; toast.style.transition='all 0.3s'; setTimeout(()=>toast.remove(),300); }, 3500);
+    }
+
+    // ---- Rating ----
+    const ratingLabels = ['', 'Very Poor', 'Poor', 'Average', 'Good', 'Excellent'];
+    document.querySelectorAll('.star-rating input').forEach(r => {
+      r.addEventListener('change', function() {
+        document.getElementById('rating-label').textContent = '⭐ ' + ratingLabels[this.value] + ' (' + this.value + '/5)';
+        document.getElementById('rating-label').style.color = 'var(--warning)';
+      });
+    });
+
+    // ---- Init User ----
+    function initUser() {
+      const user = getUser();
+      if (!user) return;
+
+      document.getElementById('student-sidebar-name').textContent = user.name;
+      document.getElementById('student-sidebar-role').textContent = 'Student · Semester ' + user.semester;
+      document.getElementById('student-avatar').textContent = user.name.charAt(0).toUpperCase();
+      document.getElementById('student-greeting-name').textContent = user.name.split(' ')[0];
+
+      const now = new Date();
+      document.getElementById('student-date-display').textContent = now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+      // Set PDF default month
+      const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0');
+      document.getElementById('pdf-month').value = y + '-' + m;
+
+      // Default to overview directly since all subjects are auto-linked
+      showStudentSection('overview');
+      loadSubjectsAndTeachers();
+      loadSummary();
+    }
+
+    // ---- Subjects and Teachers ----
+    async function loadSubjectsAndTeachers() {
+      try {
+        const res = await authFetch('/api/student/subjects');
+        if (!res.ok) return;
+        myTeachers = await res.json();
+        
+        const user = getUser();
+        document.getElementById('s-stat-subject').textContent = myTeachers.length;
+        document.getElementById('s-stat-subject-sub').textContent = 'Semester ' + user.semester;
+        
+        const select = document.getElementById('feedback-teacher-id');
+        if (select) {
+          select.innerHTML = '<option value="">Select a teacher...</option>' + myTeachers.map(t => 
+            `<option value="${t.teacher_id}">${t.teacher_name} (${t.subject})</option>`
+          ).join('');
+        }
+      } catch(err) { console.error(err); }
+    }
+
+    // ---- Load Summary ----
+    async function loadSummary() {
+      try {
+        const res = await authFetch('/api/student/attendance/summary');
+        if (!res.ok) return;
+        const data = await res.json();
+
+        document.getElementById('s-stat-overall').textContent = data.overall_percentage + '%';
+        document.getElementById('s-stat-present').textContent = data.overall_present;
+        document.getElementById('s-stat-absent').textContent = data.overall_absent;
+        document.getElementById('s-stat-present-sub').textContent = 'of ' + data.overall_total;
+        document.getElementById('s-stat-absent-sub').textContent = 'of ' + data.overall_total;
+
+        // Ring
+        document.getElementById('s-ring-container').style.setProperty('--pct', data.overall_percentage);
+        document.getElementById('s-ring-pct').textContent = data.overall_percentage + '%';
+
+        // Progress bars
+        const progressList = document.getElementById('subject-progress-list');
+        if (data.subjects.length === 0) {
+          progressList.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:0.85rem;">No attendance records yet. Your teacher will mark attendance soon.</div>';
+          return;
+        }
+
+        progressList.innerHTML = data.subjects.map(s => {
+          const color = s.percentage >= 75 ? 'var(--success)' : s.percentage >= 50 ? 'var(--warning)' : 'var(--danger)';
+          return `
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span style="font-weight:600;font-size:0.88rem;color:var(--text-primary);">${s.subject_name}</span>
+                <span style="font-weight:700;font-size:0.88rem;color:${color};">${s.percentage}%</span>
+              </div>
+              <div style="height:6px;background:rgba(108,99,255,0.1);border-radius:100px;overflow:hidden;">
+                <div style="height:100%;width:${s.percentage}%;background:${color};border-radius:100px;transition:width 0.6s ease;"></div>
+              </div>
+              <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.3rem;">${s.teacher_name} · ${s.present}P / ${s.absent}A</div>
+            </div>`;
+        }).join('');
+      } catch(err) { console.error(err); }
+    }
+
+    // ---- Attendance Records ----
+    async function loadAttendanceRecords() {
+      try {
+        const res = await authFetch('/api/student/attendance');
+        if (!res.ok) return;
+        const records = await res.json();
+
+        const tbody = document.getElementById('attendance-tbody');
+        const noMsg = document.getElementById('no-attendance-msg');
+
+        if (records.length === 0) { tbody.innerHTML = ''; noMsg.classList.remove('d-none'); return; }
+        noMsg.classList.add('d-none');
+
+        tbody.innerHTML = records.map((r, i) => {
+          const statusBadge = r.status === 'PRESENT'
+            ? '<span class="ams-badge" style="background:rgba(40,224,143,0.1);color:var(--success);border:1px solid rgba(40,224,143,0.2);">Present</span>'
+            : '<span class="ams-badge" style="background:rgba(255,77,109,0.1);color:var(--danger);border:1px solid rgba(255,77,109,0.2);">Absent</span>';
+          return `<tr><td>${i+1}</td><td>${r.subject_name}</td><td>${formatDate(r.date)}</td><td>${getDayName(r.date)}</td><td>${statusBadge}</td></tr>`;
+        }).join('');
+      } catch(err) { console.error(err); }
+    }
+
+    // ---- PDF Download ----
+    async function downloadPDF() {
+      const val = document.getElementById('pdf-month').value;
+      if (!val) { showToast('Please select a month first', 'error'); return; }
+      const [yearStr, monthStr] = val.split('-');
+
+      const btn = document.getElementById('download-pdf-btn');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+      btn.disabled = true;
+
+      try {
+        const token = getToken();
+        const res = await fetch(`${API_BASE}/api/student/attendance/pdf?year=${yearStr}&month=${parseInt(monthStr)}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) { const d = await res.json(); throw new Error(d.detail || 'Failed'); }
+
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `AMS_Report_${yearStr}_${monthStr}.pdf`;
+        document.body.appendChild(a); a.click(); a.remove();
+        window.URL.revokeObjectURL(url);
+        showToast('PDF downloaded!', 'success');
+      } catch(err) { showToast(err.message, 'error'); }
+      finally { btn.innerHTML = orig; btn.disabled = false; }
+    }
+
+    // ---- Feedback ----
+    async function submitFeedback(e) {
+      e.preventDefault();
+      const teacherId = document.getElementById('feedback-teacher-id').value;
+      const rating = document.querySelector('.star-rating input:checked');
+      const comment = document.getElementById('feedback-comment').value;
+
+      if (!teacherId) { showToast('No teacher linked yet', 'error'); return; }
+      if (!rating) { showToast('Please select a rating', 'error'); return; }
+      if (comment.length < 10) { showToast('Comment must be at least 10 characters', 'error'); return; }
+
+      const btn = document.getElementById('feedback-submit-btn');
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+      btn.disabled = true;
+
+      try {
+        const res = await authFetch('/api/student/feedback', {
+          method: 'POST',
+          body: JSON.stringify({ teacher_id: parseInt(teacherId), rating: parseInt(rating.value), comment }),
+        });
+        if (!res.ok) { const d = await res.json(); throw new Error(d.detail || 'Failed'); }
+        showToast('Feedback submitted! Thank you.', 'success');
+        e.target.reset();
+        document.getElementById('rating-label').textContent = 'Select a rating (1 = Very Poor, 5 = Excellent)';
+        document.getElementById('rating-label').style.color = 'var(--text-muted)';
+        loadFeedback();
+      } catch(err) { showToast(err.message, 'error'); }
+      finally { btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Feedback'; btn.disabled = false; }
+    }
+
+    async function loadFeedback() {
+      try {
+        const res = await authFetch('/api/student/feedback');
+        if (!res.ok) return;
+        const feedbacks = await res.json();
+
+        const container = document.getElementById('past-feedback-list');
+        if (feedbacks.length === 0) {
+          container.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:0.85rem;">No feedback submitted yet.</div>';
+          return;
+        }
+
+        container.innerHTML = feedbacks.map(f => `
+          <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--border-radius);padding:1rem;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span style="font-weight:600;font-size:0.88rem;color:var(--text-primary);">${f.teacher_name}</span>
+              <span style="color:var(--warning);font-weight:700;">${'★'.repeat(f.rating)}${'☆'.repeat(5-f.rating)}</span>
+            </div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.6;">${f.comment}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.5rem;">${new Date(f.created_at).toLocaleDateString()}</div>
+          </div>
+        `).join('');
+      } catch(err) { console.error(err); }
+    }
+
+    // ---- Mobile Sidebar ----
+    function toggleStudentMobileSidebar() {
+      const sidebar = document.getElementById('studentSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const menuBtn = document.getElementById('mobileMenuBtn');
+      const isOpen = sidebar.classList.contains('mobile-open');
+      if (isOpen) {
+        closeStudentMobileSidebar();
+      } else {
+        sidebar.classList.add('mobile-open');
+        overlay.classList.add('active');
+        menuBtn.classList.add('hidden');
+      }
+    }
+    function closeStudentMobileSidebar() {
+      const sidebar = document.getElementById('studentSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const menuBtn = document.getElementById('mobileMenuBtn');
+      sidebar.classList.remove('mobile-open');
+      overlay.classList.remove('active');
+      menuBtn.classList.remove('hidden');
+    }
+    // Close sidebar on nav click (mobile)
+    document.querySelectorAll('.sidebar-nav a').forEach(link => {
+      link.addEventListener('click', () => { if (window.innerWidth < 992) closeStudentMobileSidebar(); });
+    });
+
+    // ---- INIT ----
+    initUser();
+  </script>
+</body>
+</html>

@@ -1,0 +1,426 @@
+
+PRODUCT REQUIREMENTS DOCUMENT
+Attendance Management System
+Semester-Based Web Application
+
+Document Version	v1.0
+Status	Final
+Date	April 11, 2026
+Product Name	Attendance Management System
+Document Type	Product Requirements Document (PRD)
+Audience	Development Team, Stakeholders
+
+ 
+1.  Product Overview
+
+The Attendance Management System (AMS) is a semester-based, role-driven web application designed to digitize and streamline the entire attendance lifecycle for educational institutions. It replaces manual attendance registers with a structured, secure, and scalable digital solution.
+
+1.1  System Purpose
+•	Digitize manual attendance records into a structured database
+•	Provide teachers with full control over their own semester and subject data
+•	Allow students to transparently track their own attendance performance
+•	Enforce strict semester-based data isolation
+•	Generate downloadable monthly attendance reports in PDF format
+
+1.2  Core Design Principles
+Principle	Description
+Semester Isolation	Every data record is bound to a semester — no cross-semester access is permitted
+Teacher Ownership	Each teacher owns and manages only their own students, subjects, and attendance
+Student Read-Only	Students can view and download their attendance but cannot modify any record
+Security First	All endpoints secured with JWT; passwords stored as hashed values only
+Scalability	Modular architecture (FastAPI + PostgreSQL) allows future growth without redesign
+
+2.  Objectives
+
+#	Objective	Priority
+O-01	Provide teachers with an easy, intuitive interface for marking daily attendance	High
+O-02	Give students a clear, subject-wise view of their own attendance	High
+O-03	Implement semester-based data isolation throughout the system	Critical
+O-04	Enable monthly attendance PDF download for students	High
+O-05	Ensure all data is secured via JWT authentication and role-based access	Critical
+O-06	Build a scalable, production-grade backend using FastAPI and PostgreSQL	High
+O-07	Maintain full teacher isolation — no teacher accesses another teacher's data	Critical
+
+3.  Technology Stack
+
+Layer	Technology	Purpose
+Frontend	HTML5	Page structure and markup
+Frontend	CSS3	Styling and layout
+Frontend	Bootstrap 5	Responsive UI components
+Backend	FastAPI (Python)	REST API framework — async, high-performance
+ORM	SQLAlchemy	Database abstraction and model management
+Database	PostgreSQL (Neon Cloud)	Relational data storage — cloud-hosted
+Migration	Alembic	Database schema version control and migrations
+Authentication	JWT (JSON Web Tokens)	Stateless, secure authentication
+PDF Generation	ReportLab / WeasyPrint	Monthly attendance PDF report generation
+
+4.  User Roles & Permissions
+
+The system defines exactly two user roles. No admin role exists in this version.
+
+4.1  Teacher
+Capability	Allowed
+Login to the system	Yes
+Create and edit own profile (name, subject, class, semester, department)	Yes
+Add and delete students in own semester	Yes
+Add and manage subjects assigned to self	Yes
+Mark attendance (Present / Absent) per date, subject, and student	Yes
+Update or delete own attendance records	Yes
+Access another teacher's students or attendance	No
+Sign up (self-registration)	No — pre-seeded by admin
+
+4.2  Student
+Capability	Allowed
+Self-register (Signup)	Yes
+Login to the system	Yes
+View own attendance subject-wise	Yes
+View attendance percentage per subject	Yes
+View teacher name associated with each subject	Yes
+Submit feedback for a teacher (rating + comment)	Yes
+Download monthly attendance PDF	Yes
+Modify any attendance record	No
+View another student's attendance	No
+
+5.  Authentication System
+
+5.1  Teacher Authentication
+Teacher accounts are pre-seeded in the database by an administrator. Teachers cannot self-register.
+
+5.1.1  Teacher Login Flow
+1.	Teacher navigates to the Login page
+2.	Enters registered email and password
+3.	System verifies credentials against hashed password in the database
+4.	On success: JWT access token is issued and stored client-side
+5.	Teacher is redirected to their personal Dashboard
+6.	On failure: Error message displayed; no token issued
+
+5.1.2  Teacher Profile Setup (First Login)
+After first login, the teacher must complete their profile before accessing attendance features:
+•	Full Name
+•	Subject (e.g., Mathematics, Physics)
+•	Class (e.g., BS-CS, BBA)
+•	Semester (e.g., 1 to 8)
+•	Department (e.g., Computer Science, Business Administration)
+
+5.2  Student Authentication
+5.2.1  Student Signup
+Students self-register with the following required fields:
+Field	Type	Validation
+Full Name	Text	Required, min 3 characters
+Email Address	Email	Required, unique, valid email format
+Password	Password	Required, min 8 characters, stored hashed
+Semester	Integer (1–8)	Required, determines data scope
+Department	Text	Required
+
+5.2.2  Student Login Flow
+7.	Student navigates to the Login page
+8.	Enters registered email and password
+9.	System verifies credentials
+10.	On success: JWT token issued; student redirected to Dashboard
+11.	On failure: Error message shown
+
+6.  Website Pages
+
+Page	Route	Access	Description
+Landing Page	/	Public	Intro section, system overview, CTA buttons for Login and Signup
+About Page	/about	Public	System description, key features, and technology overview
+Login Page	/login	Public	Single form for both Teacher and Student login
+Signup Page	/signup	Public (Students only)	Student self-registration form
+Teacher Dashboard	/teacher/dashboard	Teacher (JWT)	Full attendance and student management interface
+Student Dashboard	/student/dashboard	Student (JWT)	Attendance view, feedback, and PDF download
+
+6.1  Landing Page Elements
+•	Navbar: Home, About, Login, Signup links
+•	Hero section with system name and brief description
+•	CTA buttons: 'Login as Teacher' and 'Login / Signup as Student'
+•	Feature highlights section
+
+6.2  About Page Elements
+•	System description and mission statement
+•	Key features list
+•	Technology stack overview
+
+7.  Teacher Dashboard
+
+Core Rule: Each teacher is the sole owner of their dashboard. A teacher can only access data belonging to students in their own assigned semester. No cross-teacher data access is permitted at any level.
+
+7.1  Profile Management
+Teacher can view and edit their profile at any time:
+•	Full Name
+•	Subject
+•	Class
+•	Semester
+•	Department
+
+7.2  Student Management
+Action	Description
+Add Student	Teacher adds a student to their semester by providing student name and email
+Delete Student	Teacher removes a student from their list (does not delete the student's account)
+View Student List	Teacher sees all students enrolled in their semester, in a structured table
+
+7.3  Subject Management
+Action	Description
+Add Subject	Teacher adds a new subject (e.g., 'Data Structures') linked to their profile
+View Subjects	Teacher sees all subjects they have created
+Delete Subject	Teacher removes a subject (attendance records for that subject are retained)
+
+7.4  Attendance Management
+7.4.1  Attendance Marking Flow
+12.	Teacher selects a Date from the date picker
+13.	Teacher selects a Subject from their subject list
+14.	System loads the full student list for that semester
+15.	Teacher marks each student as Present or Absent
+16.	Teacher clicks Submit
+17.	System saves each record with: student_id + subject_id + teacher_id + semester + date + status
+
+7.4.2  Attendance Control Permissions
+Operation	Allowed	Notes
+Create Attendance	Yes	Teacher marks attendance for any date
+Update Attendance	Yes	Teacher can correct a previously submitted record
+Delete Attendance	Yes	Teacher can remove a record for a specific date and subject
+View Own Records	Yes	Teacher can review all attendance submitted by them
+Access Other Teachers' Records	No	Strictly blocked at API level
+
+8.  Student Dashboard
+
+Feature	Description
+Subject-wise Attendance View	Student sees a breakdown of attendance per subject in a table format
+Attendance Percentage	For each subject: percentage = (Present Days / Total Days) × 100, displayed clearly
+Teacher Name	Each subject row shows the name of the teacher who marked the attendance
+Feedback Submission	Student can submit a rating (1–5) and a text comment for any teacher
+Monthly PDF Download	Student can download a formatted PDF of their monthly attendance report
+
+9.  Attendance Logic (Critical)
+
+9.1  Record Structure
+Every single attendance record is uniquely identified by the combination of all five fields below. Duplicate records for the same combination are not permitted.
+
+Field	Type	Purpose
+student_id	Foreign Key → Users	Identifies which student the record belongs to
+subject_id	Foreign Key → Subjects	Identifies which subject this attendance is for
+teacher_id	Foreign Key → Users	Identifies which teacher marked this record
+semester	Integer (1–8)	Semester at the time of marking — ensures isolation
+date	Date (YYYY-MM-DD)	The specific calendar date of attendance
+status	Enum: PRESENT / ABSENT	The attendance status for that day
+
+9.2  Semester-Based Filtering Rules
+9.2.1  Teacher Side
+Rule: When a teacher's profile has Semester = 8, the system loads ONLY students who are enrolled in Semester 8. Students from any other semester are never visible to this teacher.
+
+9.2.2  Student Side
+Rule: When a student's profile has Semester = 8, the dashboard shows ONLY attendance records where semester = 8. Records from other semesters are never returned by the API.
+
+9.3  Cross-Access Restrictions
+Scenario	Allowed
+Semester 8 teacher views Semester 4 students	No
+Semester 4 student views Semester 8 attendance	No
+Teacher A views Teacher B's attendance records	No
+Student views another student's attendance	No
+Teacher views attendance for their own semester only	Yes
+Student views their own semester records only	Yes
+
+9.4  Percentage Calculation Formula
+Attendance % = (Total Present Days / Total Recorded Days) × 100
+This is calculated per subject, per student, and displayed on the student dashboard.
+
+10.  Feedback System
+
+Students can submit feedback for teachers they have interacted with. This is a one-way, student-to-teacher feedback mechanism.
+
+Field	Type	Validation
+Teacher	Dropdown (select)	Required — only teachers from the student's semester are shown
+Rating	Integer (1–5)	Required — 1 = Very Poor, 5 = Excellent
+Comment	Text (textarea)	Required — minimum 10 characters
+
+10.1  Feedback Rules
+•	A student can submit feedback for any teacher linked to their semester
+•	Feedback is stored in the Feedback table with student_id, teacher_id, rating, and comment
+•	Feedback is not editable after submission in this version
+•	Teachers do not see individual feedback in this version (future enhancement)
+
+11.  Monthly Attendance PDF Feature
+
+11.1  Trigger Condition
+The 'Download Monthly Attendance' button appears on the student dashboard. The student selects a month and the system generates the PDF on demand.
+
+11.2  PDF Generation Flow
+18.	Student clicks the 'Download Monthly Attendance' button
+19.	Student selects the target month and year from a picker
+20.	Frontend sends a GET request to the backend API with student_id, month, and year
+21.	Backend queries all attendance records for that student filtered by month and semester
+22.	Attendance percentage per subject is calculated server-side
+23.	PDF is generated using ReportLab / WeasyPrint
+24.	The file is returned as a binary response with Content-Disposition: attachment
+25.	Browser triggers automatic file download
+
+11.3  PDF Content Specification
+Section	Content
+Header	System name, Student Name, Student Email, Semester, Department
+Report Info	Month and Year of the report, Date of generation
+Attendance Table	Subject | Teacher | Present Days | Absent Days | Total Days | Percentage
+Summary Row	Overall attendance percentage across all subjects
+Footer	Generated by Attendance Management System, page number
+
+11.4  Sample Attendance Table Row
+Subject	Teacher	Present	Absent	Total	Percentage
+Data Structures	Mr. Ali Hassan	18	4	22	81.82%
+Database Systems	Ms. Sara Khan	20	2	22	90.91%
+Web Engineering	Mr. Usman Raza	15	7	22	68.18%
+
+12.  Database Design
+
+12.1  Users Table
+Stores both teachers and students. The role field determines access level.
+Column	Type	Constraints	Description
+id	Integer	PK, Auto-increment	Unique user identifier
+name	VARCHAR(100)	NOT NULL	Full name of the user
+email	VARCHAR(255)	NOT NULL, UNIQUE	Login email address
+password_hash	VARCHAR(255)	NOT NULL	Bcrypt-hashed password
+role	ENUM('teacher','student')	NOT NULL	Determines dashboard and permissions
+semester	Integer (1–8)	NOT NULL	Semester the user belongs to
+department	VARCHAR(100)	NOT NULL	Department name
+created_at	TIMESTAMP	Default: NOW()	Record creation timestamp
+
+12.2  Teacher Profiles Table
+Stores additional teacher-specific profile data populated after first login.
+Column	Type	Constraints	Description
+id	Integer	PK, Auto-increment	Profile identifier
+user_id	Integer	FK → users.id, UNIQUE	Links to the Users table
+subject	VARCHAR(100)	NOT NULL	Teacher's primary subject
+class_name	VARCHAR(100)	NOT NULL	Class the teacher handles
+profile_complete	BOOLEAN	Default: FALSE	Flag for first-login setup completion
+
+12.3  Subjects Table
+Column	Type	Constraints	Description
+id	Integer	PK, Auto-increment	Subject identifier
+name	VARCHAR(100)	NOT NULL	Subject name (e.g., Data Structures)
+teacher_id	Integer	FK → users.id	The teacher who owns this subject
+semester	Integer (1–8)	NOT NULL	Semester this subject belongs to
+
+12.4  Attendance Table
+Column	Type	Constraints	Description
+id	Integer	PK, Auto-increment	Attendance record identifier
+student_id	Integer	FK → users.id	The student this record belongs to
+subject_id	Integer	FK → subjects.id	The subject for this record
+teacher_id	Integer	FK → users.id	The teacher who marked this record
+semester	Integer (1–8)	NOT NULL	Semester at time of marking
+date	DATE	NOT NULL	Calendar date (YYYY-MM-DD)
+status	ENUM('PRESENT','ABSENT')	NOT NULL	Attendance status
+created_at	TIMESTAMP	Default: NOW()	Record creation timestamp
+Unique constraint on: (student_id, subject_id, teacher_id, semester, date) — prevents duplicate entries.
+
+12.5  Feedback Table
+Column	Type	Constraints	Description
+id	Integer	PK, Auto-increment	Feedback record identifier
+student_id	Integer	FK → users.id	Student who submitted the feedback
+teacher_id	Integer	FK → users.id	Teacher who received the feedback
+rating	Integer (1–5)	NOT NULL	Numeric rating from student
+comment	TEXT	NOT NULL	Written feedback comment
+created_at	TIMESTAMP	Default: NOW()	Submission timestamp
+
+13.  API Endpoints (REST)
+
+13.1  Authentication Endpoints
+Method	Endpoint	Access	Description
+POST	/api/auth/login	Public	Login for both Teacher and Student
+POST	/api/auth/signup	Public	Student self-registration
+
+13.2  Teacher Endpoints
+Method	Endpoint	Access	Description
+GET	/api/teacher/profile	Teacher JWT	Get teacher profile
+PUT	/api/teacher/profile	Teacher JWT	Update teacher profile
+GET	/api/teacher/students	Teacher JWT	Get all students in teacher's semester
+POST	/api/teacher/students	Teacher JWT	Add a student to teacher's semester
+DELETE	/api/teacher/students/{id}	Teacher JWT	Remove a student
+GET	/api/teacher/subjects	Teacher JWT	Get all subjects for this teacher
+POST	/api/teacher/subjects	Teacher JWT	Add a new subject
+DELETE	/api/teacher/subjects/{id}	Teacher JWT	Delete a subject
+POST	/api/attendance	Teacher JWT	Submit attendance for a date and subject
+PUT	/api/attendance/{id}	Teacher JWT	Update a specific attendance record
+DELETE	/api/attendance/{id}	Teacher JWT	Delete a specific attendance record
+GET	/api/attendance	Teacher JWT	View teacher's own attendance records
+
+13.3  Student Endpoints
+Method	Endpoint	Access	Description
+GET	/api/student/attendance	Student JWT	Get all attendance records for the logged-in student
+GET	/api/student/attendance/summary	Student JWT	Get subject-wise attendance percentage summary
+POST	/api/student/feedback	Student JWT	Submit feedback for a teacher
+GET	/api/student/attendance/pdf	Student JWT	Download monthly attendance PDF
+
+14.  Security Requirements
+
+Security Layer	Implementation	Scope
+Password Hashing	Bcrypt algorithm with salt rounds ≥ 12	All user accounts
+Authentication	JWT Bearer tokens with expiry (e.g., 24h)	All protected endpoints
+Role-Based Access Control	Middleware validates role from JWT before processing requests	All API routes
+Teacher Data Isolation	All teacher queries include teacher_id = current_user.id filter at ORM level	All teacher operations
+Semester Isolation	All queries include semester = current_user.semester filter at ORM level	All attendance queries
+Student Read-Only	DELETE and PUT methods on attendance are blocked for student role	Attendance endpoints
+Input Validation	FastAPI Pydantic models validate all incoming request bodies	All endpoints
+SQL Injection Prevention	SQLAlchemy ORM with parameterized queries — no raw SQL	Database layer
+
+15.  System Workflows
+
+15.1  Teacher Workflow
+Step	Action	System Response
+1	Teacher navigates to Login page	Login form displayed
+2	Teacher enters email and password	Credentials validated against database
+3	Successful login	JWT token issued; Teacher redirected to Dashboard
+4	First login: Profile setup form appears	Teacher fills Name, Subject, Class, Semester, Department
+5	Profile saved	Dashboard fully unlocked
+6	Teacher adds students to their semester	Students appear in the student list
+7	Teacher adds subjects	Subjects available in attendance form
+8	Teacher selects date and subject, marks attendance	Attendance records saved with all identifiers
+9	Teacher updates or corrects a record	Record updated in database
+
+15.2  Student Workflow
+Step	Action	System Response
+1	Student navigates to Signup page	Registration form displayed
+2	Student fills all required fields	Account created; student redirected to Login
+3	Student logs in	JWT token issued; Student redirected to Dashboard
+4	Dashboard loads attendance summary	Subject-wise table with present/absent/percentage shown
+5	Student reviews attendance details	Teacher names visible per subject
+6	Student submits feedback	Feedback saved to Feedback table
+7	Student selects month and downloads PDF	PDF generated server-side and auto-downloaded
+
+16.  Non-Functional Requirements
+
+Category	Requirement	Target
+Performance	API response time for attendance queries	< 500ms for up to 100 students
+Performance	PDF generation time	< 5 seconds for a full month's data
+Scalability	Database design supports multiple semesters simultaneously	Up to 8 semesters
+Availability	System uptime target	99% uptime (cloud-hosted on Neon + deployment platform)
+Security	All sensitive data encrypted in transit	HTTPS enforced on all routes
+Usability	Interface usable without training	Clean Bootstrap UI, intuitive flows
+Browser Support	Compatible browsers	Chrome, Firefox, Safari, Edge (latest 2 versions)
+Mobile Responsiveness	Dashboard usable on mobile devices	Responsive Bootstrap layout
+
+17.  Constraints & Assumptions
+
+17.1  Constraints
+•	Teacher accounts must be pre-seeded; self-registration for teachers is not allowed in v1.0
+•	Only one semester can be assigned per user at a time
+•	The feedback system is one-directional — teachers cannot respond to feedback in v1.0
+•	Attendance cannot be marked for future dates
+•	PDF generation is monthly only — custom date ranges are a future enhancement
+
+17.2  Assumptions
+•	Each teacher teaches one primary subject per semester in this version
+•	Students enroll in exactly one semester at a time
+•	Internet access is available for all users (cloud DB and cloud hosting)
+•	A PostgreSQL-compatible cloud provider (Neon) is used for database hosting
+
+18.  Glossary
+
+Term	Definition
+JWT	JSON Web Token — a compact, URL-safe token used for stateless authentication
+Semester	An academic period (typically 6 months); used as the primary data isolation boundary in this system
+ORM	Object-Relational Mapper — SQLAlchemy maps Python classes to database tables
+Alembic	A database migration tool for SQLAlchemy — manages schema version history
+FastAPI	A modern Python web framework for building high-performance REST APIs
+Neon	A serverless PostgreSQL cloud database provider
+Bcrypt	A password hashing algorithm that includes salting for protection against brute force
+ReportLab	A Python library for programmatic PDF generation
+WeasyPrint	An HTML/CSS to PDF conversion library — alternative to ReportLab
+RBAC	Role-Based Access Control — permissions assigned based on the user's role
+

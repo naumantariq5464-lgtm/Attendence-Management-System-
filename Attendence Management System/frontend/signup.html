@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Student Sign Up — Create your account on the Attendance Management System." />
+  <title>Sign Up — AMS Attendance Management System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body { min-height: 100vh; display: flex; flex-direction: column; }
+
+    .auth-page {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: calc(100vh - 65px);
+    }
+
+    /* Left */
+    .auth-panel-left {
+      background: linear-gradient(145deg, #0d1422 0%, #0f1a2e 100%);
+      border-right: 1px solid var(--border-color);
+      padding: 4rem 3.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-panel-left::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,170,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,170,0.04) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    .auth-orb-left {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .auth-orb-left-1 { width:350px;height:350px;background:var(--secondary);opacity:0.12;top:-80px;right:-80px; }
+    .auth-orb-left-2 { width:250px;height:250px;background:var(--primary);opacity:0.08;bottom:-80px;left:-60px; }
+
+    .left-content { position: relative; z-index: 1; }
+
+    .left-logo {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      display: flex; align-items: center; gap: 0.7rem;
+      margin-bottom: 3rem;
+      text-decoration: none;
+    }
+
+    .left-logo-icon {
+      width: 42px; height: 42px;
+      background: var(--gradient-secondary);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .left-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.7rem, 2.8vw, 2.4rem);
+      font-weight: 900;
+      color: var(--text-primary);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .left-desc {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+
+    .perk-list {
+      list-style: none;
+      padding: 0; margin: 0;
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+
+    .perk-list li {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      font-size: 0.87rem; color: var(--text-secondary);
+    }
+
+    .perk-icon {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      background: rgba(0,212,170,0.12);
+      color: var(--secondary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.78rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Right */
+    .auth-panel-right {
+      background: var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      overflow-y: auto;
+    }
+
+    .auth-form-container {
+      width: 100%;
+      max-width: 480px;
+      padding: 2rem 0;
+    }
+
+    .auth-form-title {
+      font-family: var(--font-display);
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.02em;
+    }
+
+    .auth-form-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    /* Password strength */
+    .password-strength {
+      margin-top: 0.5rem;
+    }
+
+    .strength-bar-track {
+      height: 4px;
+      background: rgba(108,99,255,0.1);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    #strength-bar {
+      height: 100%;
+      width: 0;
+      border-radius: 100px;
+      transition: width 0.4s ease, background 0.4s ease;
+    }
+
+    #strength-label {
+      font-size: 0.75rem;
+      margin-top: 0.3rem;
+      font-weight: 600;
+    }
+
+    /* Semester grid */
+    .semester-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+
+    .semester-option {
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--border-radius-sm);
+      padding: 0.6rem 0.3rem;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      background: var(--bg-input);
+      user-select: none;
+    }
+
+    .semester-option:hover { border-color: var(--secondary); color: var(--secondary); }
+
+    .semester-option.selected {
+      border-color: var(--secondary);
+      background: rgba(0, 212, 170, 0.1);
+      color: var(--secondary);
+    }
+
+    .semester-label {
+      font-size: 0.62rem;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 0.1rem;
+      opacity: 0.7;
+    }
+
+    /* Submit / pass toggle */
+    .pass-toggle {
+      position: absolute;
+      right: 1rem; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      cursor: pointer;
+      background: none; border: none;
+      padding: 0; font-size: 0.95rem;
+      transition: var(--transition-fast);
+    }
+
+    .pass-toggle:hover { color: var(--secondary); }
+
+    /* Terms */
+    .terms-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.7rem;
+      margin: 1.25rem 0;
+    }
+
+    .terms-check input {
+      width: 16px; height: 16px;
+      accent-color: var(--secondary);
+      flex-shrink: 0;
+      cursor: pointer;
+      margin-top: 2px;
+    }
+
+    .terms-check label {
+      font-size: 0.83rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .terms-check a { color: var(--secondary); text-decoration: none; }
+
+    .auth-or-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.25rem 0;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .auth-or-divider::before, .auth-or-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border-color);
+    }
+
+    .ams-error-msg {
+      background: rgba(255,77,109,0.1);
+      border: 1px solid rgba(255,77,109,0.25);
+      border-radius: var(--border-radius-sm);
+      color: var(--danger);
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .ams-success-msg {
+      background: rgba(40,224,143,0.1);
+      border: 1px solid rgba(40,224,143,0.25);
+      border-radius: var(--border-radius-sm);
+      color: var(--success);
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 991.98px) {
+      .auth-page { grid-template-columns: 1fr; }
+      .auth-panel-left { display: none; }
+      .auth-panel-right { padding: 2rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== NAVBAR ==================== -->
+  <nav class="ams-navbar navbar navbar-expand-lg" id="signupNavbar">
+    <div class="container">
+      <a class="navbar-brand" href="index.html" id="signup-nav-brand">
+        <span class="brand-icon">🎓</span>
+        AMS<span class="brand-accent">.</span>
+      </a>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <a href="about.html" class="nav-link" style="color:var(--text-secondary);font-size:0.9rem;">About</a>
+        <a href="login.html" class="btn-secondary-ams" id="signup-nav-login">
+          <i class="fa-solid fa-right-to-bracket"></i> Login
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==================== AUTH PAGE ==================== -->
+  <div class="auth-page">
+
+    <!-- LEFT PANEL -->
+    <div class="auth-panel-left">
+      <div class="auth-orb-left auth-orb-left-1"></div>
+      <div class="auth-orb-left auth-orb-left-2"></div>
+      <div class="left-content">
+        <a href="index.html" class="left-logo">
+          <div class="left-logo-icon">🎓</div>
+          AMS Platform
+        </a>
+        <h2 class="left-title">
+          Start Tracking Your<br />
+          <span class="text-gradient-green">Attendance Today</span>
+        </h2>
+        <p class="left-desc">
+          Create your student account in seconds. Once registered, you'll instantly have access to your personalized attendance dashboard — semester-scoped and secure.
+        </p>
+        <ul class="perk-list">
+          <li>
+            <div class="perk-icon"><i class="fa-solid fa-eye"></i></div>
+            <span>View subject-wise attendance percentage with live updates</span>
+          </li>
+          <li>
+            <div class="perk-icon"><i class="fa-solid fa-file-pdf"></i></div>
+            <span>Download monthly attendance PDF reports anytime</span>
+          </li>
+          <li>
+            <div class="perk-icon"><i class="fa-solid fa-star"></i></div>
+            <span>Submit feedback for your teachers (rating + comment)</span>
+          </li>
+          <li>
+            <div class="perk-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <span>Your data is encrypted and visible only to you</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="auth-panel-right">
+      <div class="auth-form-container animate-fade-up">
+        <div class="auth-form-title">Create Account</div>
+        <p class="auth-form-subtitle">Student self-registration — no admin approval required</p>
+
+        <!-- Messages -->
+        <div class="ams-error-msg" id="signup-error">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span id="signup-error-text">Please fill all required fields.</span>
+        </div>
+        <div class="ams-success-msg" id="signup-success">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>Account created successfully! Redirecting to login...</span>
+        </div>
+
+        <form id="signupForm" novalidate>
+
+          <!-- Full Name -->
+          <div class="ams-form-group">
+            <label class="ams-label" for="signup-name">Full Name *</label>
+            <div class="input-icon-wrapper">
+              <span class="input-icon"><i class="fa-solid fa-user"></i></span>
+              <input type="text" id="signup-name" class="ams-input" placeholder="Muhammad Ali Khan" required minlength="3" />
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="ams-form-group">
+            <label class="ams-label" for="signup-email">Email Address *</label>
+            <div class="input-icon-wrapper">
+              <span class="input-icon"><i class="fa-solid fa-envelope"></i></span>
+              <input type="email" id="signup-email" class="ams-input" placeholder="student@university.edu" required autocomplete="email" />
+            </div>
+          </div>
+
+          <!-- Department -->
+          <div class="ams-form-group">
+            <label class="ams-label" for="signup-department">Department *</label>
+            <select id="signup-department" class="ams-select" required>
+              <option value="" disabled selected>Select your department</option>
+              <option value="Computer Science">Computer Science</option>
+              <option value="Software Engineering">Software Engineering</option>
+              <option value="Information Technology">Information Technology</option>
+              <option value="Business Administration">Business Administration</option>
+              <option value="Electrical Engineering">Electrical Engineering</option>
+              <option value="Mechanical Engineering">Mechanical Engineering</option>
+              <option value="Civil Engineering">Civil Engineering</option>
+              <option value="Mathematics">Mathematics</option>
+              <option value="Physics">Physics</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <!-- Semester -->
+          <div class="ams-form-group">
+            <label class="ams-label">Current Semester *</label>
+            <div class="semester-grid" id="semester-grid">
+              <div class="semester-option" onclick="selectSemester(1)" id="sem-1">1<span class="semester-label">1st</span></div>
+              <div class="semester-option" onclick="selectSemester(2)" id="sem-2">2<span class="semester-label">2nd</span></div>
+              <div class="semester-option" onclick="selectSemester(3)" id="sem-3">3<span class="semester-label">3rd</span></div>
+              <div class="semester-option" onclick="selectSemester(4)" id="sem-4">4<span class="semester-label">4th</span></div>
+              <div class="semester-option" onclick="selectSemester(5)" id="sem-5">5<span class="semester-label">5th</span></div>
+              <div class="semester-option" onclick="selectSemester(6)" id="sem-6">6<span class="semester-label">6th</span></div>
+              <div class="semester-option" onclick="selectSemester(7)" id="sem-7">7<span class="semester-label">7th</span></div>
+              <div class="semester-option" onclick="selectSemester(8)" id="sem-8">8<span class="semester-label">8th</span></div>
+            </div>
+            <input type="hidden" id="signup-semester" value="" required />
+          </div>
+
+          <!-- Password -->
+          <div class="ams-form-group">
+            <label class="ams-label" for="signup-password">Password *</label>
+            <div class="input-icon-wrapper" style="position:relative;">
+              <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+              <input type="password" id="signup-password" class="ams-input" placeholder="Min. 8 characters" required minlength="8" style="padding-right:3rem;" oninput="checkPasswordStrength(this.value)" />
+              <button type="button" class="pass-toggle" onclick="togglePass('signup-password', 'pass-icon-1')">
+                <i class="fa-regular fa-eye" id="pass-icon-1"></i>
+              </button>
+            </div>
+            <div class="password-strength">
+              <div class="strength-bar-track"><div id="strength-bar"></div></div>
+              <div id="strength-label" style="color:var(--text-muted);">Enter a password</div>
+            </div>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="ams-form-group">
+            <label class="ams-label" for="signup-confirm-password">Confirm Password *</label>
+            <div class="input-icon-wrapper" style="position:relative;">
+              <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+              <input type="password" id="signup-confirm-password" class="ams-input" placeholder="Repeat your password" required style="padding-right:3rem;" />
+              <button type="button" class="pass-toggle" onclick="togglePass('signup-confirm-password', 'pass-icon-2')">
+                <i class="fa-regular fa-eye" id="pass-icon-2"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Terms -->
+          <div class="terms-check">
+            <input type="checkbox" id="terms-agree" required />
+            <label for="terms-agree">
+              I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. I understand that my attendance data is read-only and managed by teachers.
+            </label>
+          </div>
+
+          <button type="submit" class="btn-success-ams w-100 justify-content-center" id="signup-submit-btn" style="padding:0.85rem;font-size:1rem;">
+            <i class="fa-solid fa-user-plus"></i>
+            <span id="signup-btn-text">Create Student Account</span>
+          </button>
+
+          <div class="auth-or-divider">already have an account?</div>
+
+          <div class="text-center">
+            <a href="login.html" class="btn-secondary-ams w-100 justify-content-center" id="go-to-login">
+              <i class="fa-solid fa-right-to-bracket"></i> Sign In Instead
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    // If already logged in, redirect
+    if (isLoggedIn()) {
+      const user = getUser();
+      if (user.role === 'admin') window.location.href = 'admin-dashboard.html';
+      else if (user.role === 'teacher') window.location.href = 'teacher-dashboard.html';
+      else window.location.href = 'student-dashboard.html';
+    }
+
+    // Semester selection
+    let selectedSemester = null;
+
+    function selectSemester(num) {
+      selectedSemester = num;
+      document.getElementById('signup-semester').value = num;
+      for (let i = 1; i <= 8; i++) {
+        document.getElementById('sem-' + i).classList.toggle('selected', i === num);
+      }
+    }
+
+    // Password toggle
+    function togglePass(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-regular fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-regular fa-eye';
+      }
+    }
+
+    // Password strength
+    function checkPasswordStrength(password) {
+      const bar = document.getElementById('strength-bar');
+      const label = document.getElementById('strength-label');
+
+      let score = 0;
+      if (password.length >= 8) score++;
+      if (/[A-Z]/.test(password)) score++;
+      if (/[0-9]/.test(password)) score++;
+      if (/[^A-Za-z0-9]/.test(password)) score++;
+
+      const levels = [
+        { w: '0%',   bg: 'transparent', text: 'Enter a password', color: 'var(--text-muted)' },
+        { w: '25%',  bg: '#ff4d6d',     text: 'Weak',             color: '#ff4d6d' },
+        { w: '50%',  bg: '#ffc107',     text: 'Fair',             color: '#ffc107' },
+        { w: '75%',  bg: '#00d4aa',     text: 'Good',             color: '#00d4aa' },
+        { w: '100%', bg: '#28e08f',     text: 'Strong ✓',         color: '#28e08f' },
+      ];
+
+      const level = password.length === 0 ? levels[0] : levels[score];
+      bar.style.width = level.w;
+      bar.style.background = level.bg;
+      label.textContent = level.text;
+      label.style.color = level.color;
+    }
+
+    // Form submit — REAL API CALL
+    document.getElementById('signupForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('signup-name').value.trim();
+      const email = document.getElementById('signup-email').value.trim();
+      const dept = document.getElementById('signup-department').value;
+      const semester = document.getElementById('signup-semester').value;
+      const password = document.getElementById('signup-password').value;
+      const confirmPass = document.getElementById('signup-confirm-password').value;
+      const terms = document.getElementById('terms-agree').checked;
+      const errorDiv = document.getElementById('signup-error');
+      const errorText = document.getElementById('signup-error-text');
+
+      errorDiv.style.display = 'none';
+
+      if (!name || name.length < 3) {
+        errorDiv.style.display = 'flex'; errorText.textContent = 'Full name must be at least 3 characters.'; return;
+      }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errorDiv.style.display = 'flex'; errorText.textContent = 'Please enter a valid email address.'; return;
+      }
+      if (!dept) {
+        errorDiv.style.display = 'flex'; errorText.textContent = 'Please select your department.'; return;
+      }
+      if (!semester) {
+        errorDiv.style.display = 'flex'; errorText.textContent = 'Please select your current semester.'; return;
+      }
+      if (password.length < 8) {
+        errorDiv.style.display = 'flex'; errorText.textContent = 'Password must be at least 8 characters.'; return;
+      }
+      if (password !== confirmPass) {
+        errorDiv.style.display = 'flex'; errorText.textContent = 'Passwords do not match.'; return;
+      }
+      if (!terms) {
+        errorDiv.style.display = 'flex'; errorText.textContent = 'Please accept the Terms of Service to continue.'; return;
+      }
+
+      // Loading state
+      const btn = document.getElementById('signup-submit-btn');
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating Account...';
+      btn.disabled = true;
+
+      try {
+        const response = await fetch(API_BASE + '/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+            semester: parseInt(semester),
+            department: dept,
+          }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.detail || 'Signup failed. Please try again.');
+        }
+
+        const data = await response.json();
+
+        // Store token and user info
+        setToken(data.access_token);
+        setUser({
+          id: data.user_id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
+          semester: data.semester,
+          department: data.department,
+          subject: data.subject,
+        });
+
+        // Show success
+        document.getElementById('signup-success').style.display = 'flex';
+        btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Account Created!';
+
+        // Redirect to student dashboard
+        setTimeout(() => { window.location.href = 'student-dashboard.html'; }, 1500);
+
+      } catch (err) {
+        errorDiv.style.display = 'flex';
+        errorText.textContent = err.message;
+        btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> <span>Create Student Account</span>';
+        btn.disabled = false;
+      }
+    });
+
+    // Navbar scroll
+    const nav = document.getElementById('signupNavbar');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
+  </script>
+</body>
+</html>

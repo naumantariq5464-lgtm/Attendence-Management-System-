@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="About the Attendance Management System — learn about our mission, features, technology stack, and design principles." />
+  <title>About — AMS Attendance Management System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .page-hero {
+      padding: 9rem 0 5rem;
+      background: var(--gradient-hero);
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(108,99,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(108,99,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .page-hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+    }
+    .orb-hero-1 { width:400px;height:400px;background:var(--primary);top:-100px;right:-100px; }
+    .orb-hero-2 { width:300px;height:300px;background:var(--secondary);bottom:-80px;left:-80px; }
+
+    .page-hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+      line-height: 1.1;
+    }
+
+    .page-hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 620px;
+    }
+
+    /* Mission */
+    .mission-section { padding: 5rem 0; }
+
+    .mission-card {
+      background: var(--gradient-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mission-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--gradient-primary);
+    }
+
+    .mission-quote {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+    }
+
+    .mission-divider { width: 60px; height: 3px; background: var(--gradient-primary); border-radius: 100px; margin: 1.5rem 0; }
+
+    .mission-desc {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+    }
+
+    /* Design Principles */
+    .principles-section { padding: 5rem 0; background: var(--bg-secondary); }
+
+    .principle-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      padding: 1.75rem;
+      height: 100%;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .principle-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .principle-num {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 900;
+      color: rgba(108,99,255,0.1);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.05em;
+    }
+
+    .principle-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .principle-desc {
+      font-size: 0.87rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .principle-badge-bottom {
+      margin-top: 1rem;
+    }
+
+    /* Tech Stack */
+    .tech-section { padding: 5rem 0; }
+
+    .tech-card {
+      background: var(--gradient-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      padding: 1.5rem;
+      text-align: center;
+      transition: var(--transition);
+      height: 100%;
+    }
+
+    .tech-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .tech-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .tech-name {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+    }
+
+    .tech-role {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* Security */
+    .security-section { padding: 5rem 0; background: var(--bg-secondary); }
+
+    .security-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1.25rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .security-item:last-child { border-bottom: none; }
+
+    .security-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      background: rgba(108,99,255,0.1);
+      color: var(--primary-light);
+    }
+
+    .security-title {
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.2rem;
+    }
+
+    .security-desc {
+      font-size: 0.87rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== NAVBAR ==================== -->
+  <nav class="ams-navbar navbar navbar-expand-lg" id="aboutNavbar">
+    <div class="container">
+      <a class="navbar-brand" href="index.html" id="about-nav-brand">
+        <span class="brand-icon">🎓</span>
+        AMS<span class="brand-accent">.</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarAbout">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarAbout">
+        <ul class="navbar-nav ms-auto align-items-center gap-1">
+          <li class="nav-item"><a class="nav-link" href="index.html" id="about-nav-home">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="about.html" id="about-nav-about">About</a></li>
+          <li class="nav-item ms-2">
+            <a class="btn-secondary-ams" href="login.html" id="about-nav-login"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn-primary-ams" href="signup.html" id="about-nav-signup"><i class="fa-solid fa-user-plus"></i> Sign Up</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==================== PAGE HERO ==================== -->
+  <section class="page-hero" id="about-hero">
+    <div class="page-hero-orb orb-hero-1"></div>
+    <div class="page-hero-orb orb-hero-2"></div>
+    <div class="container position-relative text-center animate-fade-up">
+      <div class="section-tag mb-3 d-inline-flex"><i class="fa-solid fa-circle-info"></i> About AMS</div>
+      <h1 class="page-hero-title mb-3">
+        Built to <span class="text-gradient">Digitize</span> Attendance <br />
+        for the Modern Classroom
+      </h1>
+      <p class="page-hero-subtitle mx-auto">
+        The Attendance Management System (AMS) replaces physical registers with a secure, 
+        structured, and scalable digital solution — designed with strict data integrity and role-based control at its core.
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================== MISSION ==================== -->
+  <section class="mission-section" id="mission">
+    <div class="container">
+      <div class="row g-5 align-items-center">
+        <div class="col-lg-6 animate-fade-up">
+          <div class="mission-card">
+            <div class="mission-quote">
+              "Every student deserves transparent access to their own data. Every teacher deserves full ownership of their classroom."
+            </div>
+            <div class="mission-divider"></div>
+            <p class="mission-desc">
+              AMS was designed with one guiding principle: <strong style="color:var(--text-primary)">data should belong to the people who generate it</strong>. 
+              Teachers own their students, subjects, and attendance records. Students own their personal attendance history. 
+              No cross-contamination, no unauthorized access — ever.
+            </p>
+          </div>
+        </div>
+        <div class="col-lg-6 animate-fade-up delay-2">
+          <div class="section-tag"><i class="fa-solid fa-bullseye"></i> Our Mission</div>
+          <h2 class="section-title mb-3">Why We Built <span class="gradient-text">AMS</span></h2>
+          <p class="section-subtitle mb-4">Manual attendance registers are error-prone, time-consuming, and impossible to audit. AMS solves all of that.</p>
+
+          <div class="d-flex flex-column gap-3">
+            <div class="d-flex gap-3 align-items-start">
+              <div class="stat-icon stat-icon-purple" style="width:44px;height:44px;border-radius:11px;font-size:1rem;flex-shrink:0;">
+                <i class="fa-solid fa-database"></i>
+              </div>
+              <div>
+                <div style="font-weight:700;color:var(--text-primary);margin-bottom:0.2rem;">Digitize Every Record</div>
+                <p style="font-size:0.87rem;color:var(--text-secondary);line-height:1.6;margin:0;">Transform paper registers into structured, queryable database records with complete audit history.</p>
+              </div>
+            </div>
+            <div class="d-flex gap-3 align-items-start">
+              <div class="stat-icon stat-icon-green" style="width:44px;height:44px;border-radius:11px;font-size:1rem;flex-shrink:0;">
+                <i class="fa-solid fa-layer-group"></i>
+              </div>
+              <div>
+                <div style="font-weight:700;color:var(--text-primary);margin-bottom:0.2rem;">Semester-Scoped Isolation</div>
+                <p style="font-size:0.87rem;color:var(--text-secondary);line-height:1.6;margin:0;">Every record is bound to a specific semester, preventing cross-semester data leakage.</p>
+              </div>
+            </div>
+            <div class="d-flex gap-3 align-items-start">
+              <div class="stat-icon stat-icon-blue" style="width:44px;height:44px;border-radius:11px;font-size:1rem;flex-shrink:0;">
+                <i class="fa-solid fa-user-graduate"></i>
+              </div>
+              <div>
+                <div style="font-weight:700;color:var(--text-primary);margin-bottom:0.2rem;">Student Transparency</div>
+                <p style="font-size:0.87rem;color:var(--text-secondary);line-height:1.6;margin:0;">Students can instantly view their attendance percentage per subject and download PDF reports.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== DESIGN PRINCIPLES ==================== -->
+  <section class="principles-section" id="principles">
+    <div class="container">
+      <div class="text-center mb-5 animate-fade-up">
+        <div class="section-tag"><i class="fa-solid fa-compass"></i> Design Principles</div>
+        <h2 class="section-title">Core <span class="gradient-text">Principles</span> Guiding AMS</h2>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-6 col-xl-4 animate-fade-up delay-1">
+          <div class="principle-card">
+            <div class="principle-num">01</div>
+            <div class="principle-title">Semester Isolation</div>
+            <p class="principle-desc">Every data record is bound to a semester. No cross-semester access is permitted at any layer — not at the API, not at the database.</p>
+            <div class="principle-badge-bottom"><span class="ams-badge badge-primary">Critical</span></div>
+          </div>
+        </div>
+        <div class="col-md-6 col-xl-4 animate-fade-up delay-2">
+          <div class="principle-card">
+            <div class="principle-num">02</div>
+            <div class="principle-title">Teacher Ownership</div>
+            <p class="principle-desc">Each teacher owns and manages only their students, subjects, and attendance records. Strict teacher ID filtering at ORM level guarantees this.</p>
+            <div class="principle-badge-bottom"><span class="ams-badge badge-primary">Critical</span></div>
+          </div>
+        </div>
+        <div class="col-md-6 col-xl-4 animate-fade-up delay-3">
+          <div class="principle-card">
+            <div class="principle-num">03</div>
+            <div class="principle-title">Student Read-Only</div>
+            <p class="principle-desc">Students can view and download their attendance but cannot modify any record. All write operations on attendance are blocked for the student role.</p>
+            <div class="principle-badge-bottom"><span class="ams-badge badge-warning">Enforced</span></div>
+          </div>
+        </div>
+        <div class="col-md-6 col-xl-4 animate-fade-up delay-1">
+          <div class="principle-card">
+            <div class="principle-num">04</div>
+            <div class="principle-title">Security First</div>
+            <p class="principle-desc">All endpoints are secured with JWT Bearer tokens. Passwords are hashed using Bcrypt with salt rounds ≥ 12. HTTPS is enforced in production.</p>
+            <div class="principle-badge-bottom"><span class="ams-badge badge-primary">Critical</span></div>
+          </div>
+        </div>
+        <div class="col-md-6 col-xl-4 animate-fade-up delay-2">
+          <div class="principle-card">
+            <div class="principle-num">05</div>
+            <div class="principle-title">Scalability</div>
+            <p class="principle-desc">Modular architecture using FastAPI and PostgreSQL (Neon Cloud) allows the system to scale to hundreds of teachers and thousands of students.</p>
+            <div class="principle-badge-bottom"><span class="ams-badge badge-primary">Built-in</span></div>
+          </div>
+        </div>
+        <div class="col-md-6 col-xl-4 animate-fade-up delay-3">
+          <div class="principle-card">
+            <div class="principle-num">06</div>
+            <div class="principle-title">Clean UX</div>
+            <p class="principle-desc">Bootstrap 5 responsive UI with intuitive flows — usable without training. Mobile-first design ensures accessibility on any device.</p>
+            <div class="principle-badge-bottom"><span class="ams-badge badge-warning">Priority</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== TECH STACK ==================== -->
+  <section class="tech-section" id="tech-stack">
+    <div class="container">
+      <div class="text-center mb-5 animate-fade-up">
+        <div class="section-tag"><i class="fa-solid fa-microchip"></i> Technology</div>
+        <h2 class="section-title">Built with a <span class="gradient-text">Production-Grade</span> Stack</h2>
+        <p class="section-subtitle mx-auto mt-3">Every technology was chosen for performance, reliability, and developer experience.</p>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-6 col-md-4 col-lg-2 animate-fade-up delay-1">
+          <div class="tech-card">
+            <div class="tech-icon">🌐</div>
+            <div class="tech-name">HTML5</div>
+            <div class="tech-role">Structure</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 animate-fade-up delay-2">
+          <div class="tech-card">
+            <div class="tech-icon">🎨</div>
+            <div class="tech-name">Bootstrap 5</div>
+            <div class="tech-role">UI / Responsive</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 animate-fade-up delay-3">
+          <div class="tech-card">
+            <div class="tech-icon">⚡</div>
+            <div class="tech-name">FastAPI</div>
+            <div class="tech-role">REST API</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 animate-fade-up delay-1">
+          <div class="tech-card">
+            <div class="tech-icon">🐘</div>
+            <div class="tech-name">PostgreSQL</div>
+            <div class="tech-role">Database</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 animate-fade-up delay-2">
+          <div class="tech-card">
+            <div class="tech-icon">🔐</div>
+            <div class="tech-name">JWT</div>
+            <div class="tech-role">Authentication</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 animate-fade-up delay-3">
+          <div class="tech-card">
+            <div class="tech-icon">📄</div>
+            <div class="tech-name">ReportLab</div>
+            <div class="tech-role">PDF Generation</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 animate-fade-up delay-1">
+          <div class="tech-card">
+            <div class="tech-icon">🗄️</div>
+            <div class="tech-name">SQLAlchemy</div>
+            <div class="tech-role">ORM</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 animate-fade-up delay-2">
+          <div class="tech-card">
+            <div class="tech-icon">🔄</div>
+            <div class="tech-name">Alembic</div>
+            <div class="tech-role">Migrations</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 animate-fade-up delay-3">
+          <div class="tech-card">
+            <div class="tech-icon">☁️</div>
+            <div class="tech-name">Neon</div>
+            <div class="tech-role">Cloud DB</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 animate-fade-up delay-1">
+          <div class="tech-card">
+            <div class="tech-icon">🔒</div>
+            <div class="tech-name">Bcrypt</div>
+            <div class="tech-role">Password Hashing</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 animate-fade-up delay-2">
+          <div class="tech-card">
+            <div class="tech-icon">🐍</div>
+            <div class="tech-name">Python</div>
+            <div class="tech-role">Backend Lang.</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2 animate-fade-up delay-3">
+          <div class="tech-card">
+            <div class="tech-icon">📊</div>
+            <div class="tech-name">Pydantic</div>
+            <div class="tech-role">Validation</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECURITY ==================== -->
+  <section class="security-section" id="security">
+    <div class="container">
+      <div class="row g-5 align-items-start">
+        <div class="col-lg-5 animate-fade-up">
+          <div class="section-tag"><i class="fa-solid fa-shield-halved"></i> Security</div>
+          <h2 class="section-title mb-3">Security Built <span class="gradient-text">Into the Core</span></h2>
+          <p class="section-subtitle">From JWT tokens to database-level filtering, every layer of AMS is designed to protect your data and enforce strict access boundaries.</p>
+        </div>
+        <div class="col-lg-7 animate-fade-up delay-2">
+          <div class="ams-card">
+            <div class="security-item">
+              <div class="security-icon"><i class="fa-solid fa-key"></i></div>
+              <div>
+                <div class="security-title">JWT Authentication</div>
+                <p class="security-desc">Stateless Bearer tokens with 24h expiry. All protected routes validate the token and extract the user's role before processing.</p>
+              </div>
+            </div>
+            <div class="security-item">
+              <div class="security-icon"><i class="fa-solid fa-lock"></i></div>
+              <div>
+                <div class="security-title">Bcrypt Password Hashing</div>
+                <p class="security-desc">Passwords are never stored in plain text. Bcrypt with salt rounds ≥ 12 ensures brute-force resistance for every account.</p>
+              </div>
+            </div>
+            <div class="security-item">
+              <div class="security-icon"><i class="fa-solid fa-user-shield"></i></div>
+              <div>
+                <div class="security-title">Role-Based Access Control</div>
+                <p class="security-desc">Middleware validates each user's role from their JWT before processing any request. Teachers and students have entirely separate API capabilities.</p>
+              </div>
+            </div>
+            <div class="security-item">
+              <div class="security-icon"><i class="fa-solid fa-filter"></i></div>
+              <div>
+                <div class="security-title">ORM-Level Data Isolation</div>
+                <p class="security-desc">All database queries include <code style="color:var(--primary-light);background:rgba(108,99,255,0.1);padding:0.1em 0.4em;border-radius:4px;">teacher_id = current_user.id</code> and <code style="color:var(--primary-light);background:rgba(108,99,255,0.1);padding:0.1em 0.4em;border-radius:4px;">semester = current_user.semester</code> filters automatically — no raw SQL, no injection risk.</p>
+              </div>
+            </div>
+            <div class="security-item">
+              <div class="security-icon"><i class="fa-solid fa-check-double"></i></div>
+              <div>
+                <div class="security-title">Pydantic Input Validation</div>
+                <p class="security-desc">All incoming API request bodies are validated by Pydantic models before any processing occurs — type-safe from edge to database.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="ams-footer">
+    <div class="container">
+      <div class="row g-4 mb-3">
+        <div class="col-lg-4">
+          <div class="footer-brand">🎓 AMS <span class="text-gradient">Platform</span></div>
+          <p class="footer-text">A semester-based attendance management system built for modern educational institutions.</p>
+        </div>
+        <div class="col-6 col-lg-2">
+          <div style="font-size:0.8rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.8rem;">Navigation</div>
+          <div class="d-flex flex-column gap-2">
+            <a href="index.html" class="footer-link">Home</a>
+            <a href="about.html" class="footer-link">About</a>
+            <a href="login.html" class="footer-link">Login</a>
+            <a href="signup.html" class="footer-link">Sign Up</a>
+          </div>
+        </div>
+        <div class="col-6 col-lg-2">
+          <div style="font-size:0.8rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.8rem;">Dashboards</div>
+          <div class="d-flex flex-column gap-2">
+            <a href="teacher-dashboard.html" class="footer-link">Teacher Dashboard</a>
+            <a href="student-dashboard.html" class="footer-link">Student Dashboard</a>
+          </div>
+        </div>
+      </div>
+      <hr class="footer-divider" />
+      <p class="footer-copy">© 2026 Attendance Management System. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const navbar = document.getElementById('aboutNavbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+  </script>
+</body>
+</html>

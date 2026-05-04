@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Login to the Attendance Management System as Admin, Teacher, or Student." />
+  <title>Login — AMS Attendance Management System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body { min-height: 100vh; display: flex; flex-direction: column; }
+
+    .auth-page {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: calc(100vh - 65px);
+    }
+
+    /* ---- LEFT PANEL ---- */
+    .auth-panel-left {
+      background: linear-gradient(145deg, #0d0e18 0%, #151728 100%);
+      border-right: 1px solid var(--border-color);
+      padding: 4rem 3.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-panel-left::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(108,99,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(108,99,255,0.05) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    .auth-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      pointer-events: none;
+    }
+
+    .auth-orb-1 { width:350px;height:350px;background:var(--primary);opacity:0.15;top:-100px;left:-100px; }
+    .auth-orb-2 { width:250px;height:250px;background:var(--secondary);opacity:0.1;bottom:-80px;right:-60px; }
+
+    .left-panel-content { position: relative; z-index: 1; }
+
+    .left-logo {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      margin-bottom: 3rem;
+      text-decoration: none;
+    }
+
+    .left-logo-icon {
+      width: 42px; height: 42px;
+      background: var(--gradient-primary);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .left-panel-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 900;
+      color: var(--text-primary);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .left-panel-desc {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+
+    .left-feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .left-feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+
+    .left-feature-list li .feat-icon {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      background: rgba(108,99,255,0.12);
+      color: var(--primary-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+
+    /* ---- RIGHT PANEL ---- */
+    .auth-panel-right {
+      background: var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .auth-form-container {
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .auth-form-title {
+      font-family: var(--font-display);
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.02em;
+    }
+
+    .auth-form-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    /* Role Tabs — 3 columns now */
+    .role-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.6rem;
+      margin-bottom: 2rem;
+    }
+
+    .role-option {
+      border: 2px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 0.85rem 0.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+      background: var(--bg-input);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .role-option:hover { border-color: var(--border-hover); }
+
+    .role-option.selected {
+      border-color: var(--primary);
+      background: rgba(108, 99, 255, 0.08);
+    }
+
+    .role-option.selected-admin {
+      border-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .role-option.selected::after,
+    .role-option.selected-admin::after {
+      content: '✓';
+      position: absolute;
+      top: 0.3rem; right: 0.4rem;
+      width: 16px; height: 16px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 0.6rem;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+    }
+
+    .role-option.selected-admin::after {
+      background: #f59e0b;
+    }
+
+    .role-option-icon { font-size: 1.4rem; margin-bottom: 0.3rem; }
+
+    .role-option-name {
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: var(--text-primary);
+      margin-bottom: 0.1rem;
+    }
+
+    .role-option-desc {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    /* password toggle */
+    .pass-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 0.95rem;
+      transition: var(--transition-fast);
+    }
+
+    .pass-toggle:hover { color: var(--primary-light); }
+
+    /* Divider */
+    .auth-or-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.25rem 0;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .auth-or-divider::before,
+    .auth-or-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-color);
+    }
+
+    /* Error message */
+    .ams-error-msg {
+      background: rgba(255, 77, 109, 0.1);
+      border: 1px solid rgba(255, 77, 109, 0.25);
+      border-radius: var(--border-radius-sm);
+      color: var(--danger);
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* ---- RESPONSIVE ---- */
+    @media (max-width: 991.98px) {
+      .auth-page {
+        grid-template-columns: 1fr;
+      }
+      .auth-panel-left { display: none; }
+      .auth-panel-right { padding: 2rem 1rem; min-height: calc(100vh - 65px); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== NAVBAR ==================== -->
+  <nav class="ams-navbar navbar navbar-expand-lg" id="loginNavbar">
+    <div class="container">
+      <a class="navbar-brand" href="index.html" id="login-nav-brand">
+        <span class="brand-icon">🎓</span>
+        AMS<span class="brand-accent">.</span>
+      </a>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <a href="about.html" class="nav-link" style="color:var(--text-secondary);font-size:0.9rem;" id="login-nav-about">About</a>
+        <a href="signup.html" class="btn-primary-ams" id="login-nav-signup">
+          <i class="fa-solid fa-user-plus"></i> Sign Up
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==================== AUTH PAGE ==================== -->
+  <div class="auth-page">
+
+    <!-- LEFT PANEL -->
+    <div class="auth-panel-left">
+      <div class="auth-orb auth-orb-1"></div>
+      <div class="auth-orb auth-orb-2"></div>
+      <div class="left-panel-content">
+        <a href="index.html" class="left-logo">
+          <div class="left-logo-icon">🎓</div>
+          AMS Platform
+        </a>
+        <h2 class="left-panel-title">Welcome Back<br /><span class="text-gradient">to Your Dashboard</span></h2>
+        <p class="left-panel-desc">Sign in to access your personalized attendance dashboard. All data is encrypted and role-isolated for your security.</p>
+
+        <ul class="left-feature-list">
+          <li>
+            <div class="feat-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <span>JWT-secured authentication — tokens expire in 24 hours</span>
+          </li>
+          <li>
+            <div class="feat-icon"><i class="fa-solid fa-layer-group"></i></div>
+            <span>Role-based isolation — Admin, Teacher, Student</span>
+          </li>
+          <li>
+            <div class="feat-icon"><i class="fa-solid fa-chart-bar"></i></div>
+            <span>Real-time attendance analytics and PDF export</span>
+          </li>
+          <li>
+            <div class="feat-icon"><i class="fa-solid fa-user-lock"></i></div>
+            <span>Teacher data isolation — each teacher sees only their students</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="auth-panel-right">
+      <div class="auth-form-container animate-fade-up">
+        <div class="auth-form-title">Sign In</div>
+        <p class="auth-form-subtitle">Select your role and enter your credentials</p>
+
+        <!-- Role Selector — 3 options -->
+        <div class="role-selector">
+          <div class="role-option" id="role-admin-option" onclick="selectRole('admin')">
+            <div class="role-option-icon">🛡️</div>
+            <div class="role-option-name">Admin</div>
+            <div class="role-option-desc">Full control</div>
+          </div>
+          <div class="role-option selected" id="role-teacher-option" onclick="selectRole('teacher')">
+            <div class="role-option-icon">👨‍🏫</div>
+            <div class="role-option-name">Teacher</div>
+            <div class="role-option-desc">Manage attendance</div>
+          </div>
+          <div class="role-option" id="role-student-option" onclick="selectRole('student')">
+            <div class="role-option-icon">🎓</div>
+            <div class="role-option-name">Student</div>
+            <div class="role-option-desc">View attendance</div>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div class="ams-error-msg" id="login-error">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span id="login-error-text">Invalid email or password. Please try again.</span>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" novalidate>
+          <input type="hidden" id="selected-role" value="teacher" />
+
+          <div class="ams-form-group">
+            <label class="ams-label" for="login-email">Email Address</label>
+            <div class="input-icon-wrapper">
+              <span class="input-icon"><i class="fa-solid fa-envelope"></i></span>
+              <input
+                type="email"
+                id="login-email"
+                class="ams-input"
+                placeholder="you@example.com"
+                required
+                autocomplete="email"
+              />
+            </div>
+          </div>
+
+          <div class="ams-form-group">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <label class="ams-label mb-0" for="login-password">Password</label>
+            </div>
+            <div class="input-icon-wrapper" style="position:relative;">
+              <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+              <input
+                type="password"
+                id="login-password"
+                class="ams-input"
+                placeholder="Enter your password"
+                required
+                autocomplete="current-password"
+                style="padding-right:3rem;"
+              />
+              <button type="button" class="pass-toggle" id="pass-toggle-btn" onclick="togglePassword()">
+                <i class="fa-regular fa-eye" id="pass-toggle-icon"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary-ams w-100 mt-3 justify-content-center" id="login-submit-btn" style="padding:0.85rem;">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span id="login-btn-text">Sign In as Teacher</span>
+          </button>
+
+          <div class="auth-or-divider">or</div>
+
+          <div class="text-center" style="font-size:0.88rem;color:var(--text-secondary);">
+            Don't have an account?
+            <a href="signup.html" style="color:var(--primary-light);font-weight:600;text-decoration:none;" id="go-to-signup"> Create one as Student</a>
+          </div>
+        </form>
+
+        <!-- Info notes -->
+        <div id="teacher-note" style="margin-top:1.5rem;background:rgba(108,99,255,0.07);border:1px solid rgba(108,99,255,0.18);border-radius:var(--border-radius-sm);padding:0.85rem 1rem;font-size:0.82rem;color:var(--text-secondary);">
+          <i class="fa-solid fa-circle-info" style="color:var(--primary-light);margin-right:0.5rem;"></i>
+          Teacher accounts are created by the Admin. Contact your administrator if you don't have credentials.
+        </div>
+        <div id="admin-note" style="display:none;margin-top:1.5rem;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:var(--border-radius-sm);padding:0.85rem 1rem;font-size:0.82rem;color:var(--text-secondary);">
+          <i class="fa-solid fa-shield-halved" style="color:#f59e0b;margin-right:0.5rem;"></i>
+          Admin access is restricted. Only pre-authorized credentials will work.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    // If already logged in, redirect to dashboard
+    if (isLoggedIn()) {
+      const user = getUser();
+      if (user.role === 'admin') window.location.href = 'admin-dashboard.html';
+      else if (user.role === 'teacher') window.location.href = 'teacher-dashboard.html';
+      else window.location.href = 'student-dashboard.html';
+    }
+
+    // Role selection
+    let currentRole = 'teacher';
+
+    function selectRole(role) {
+      currentRole = role;
+      document.getElementById('selected-role').value = role;
+
+      // Reset all
+      document.getElementById('role-admin-option').className = 'role-option';
+      document.getElementById('role-teacher-option').className = 'role-option';
+      document.getElementById('role-student-option').className = 'role-option';
+
+      // Set active
+      if (role === 'admin') {
+        document.getElementById('role-admin-option').className = 'role-option selected-admin';
+      } else {
+        document.getElementById('role-' + role + '-option').classList.add('selected');
+      }
+
+      const btnText = document.getElementById('login-btn-text');
+      const teacherNote = document.getElementById('teacher-note');
+      const adminNote = document.getElementById('admin-note');
+
+      teacherNote.style.display = 'none';
+      adminNote.style.display = 'none';
+
+      if (role === 'admin') {
+        btnText.textContent = 'Sign In as Admin';
+        adminNote.style.display = 'block';
+      } else if (role === 'teacher') {
+        btnText.textContent = 'Sign In as Teacher';
+        teacherNote.style.display = 'block';
+      } else {
+        btnText.textContent = 'Sign In as Student';
+      }
+    }
+
+    // Password toggle
+    function togglePassword() {
+      const input = document.getElementById('login-password');
+      const icon = document.getElementById('pass-toggle-icon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-regular fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-regular fa-eye';
+      }
+    }
+
+    // Form submission — REAL API CALL
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errorDiv = document.getElementById('login-error');
+
+      // Basic validation
+      if (!email || !password) {
+        errorDiv.style.display = 'flex';
+        document.getElementById('login-error-text').textContent = 'Please fill in all fields.';
+        return;
+      }
+
+      // Show loading state
+      const btn = document.getElementById('login-submit-btn');
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Signing In...';
+      btn.disabled = true;
+      errorDiv.style.display = 'none';
+
+      try {
+        const response = await fetch(API_BASE + '/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.detail || 'Invalid email or password.');
+        }
+
+        const data = await response.json();
+
+        // Store token and user info
+        setToken(data.access_token);
+        setUser({
+          id: data.user_id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
+          semester: data.semester,
+          department: data.department,
+          subject: data.subject,
+        });
+
+        // Redirect based on role
+        if (data.role === 'admin') {
+          window.location.href = 'admin-dashboard.html';
+        } else if (data.role === 'teacher') {
+          window.location.href = 'teacher-dashboard.html';
+        } else {
+          window.location.href = 'student-dashboard.html';
+        }
+
+      } catch (err) {
+        errorDiv.style.display = 'flex';
+        document.getElementById('login-error-text').textContent = err.message;
+        const roleLabel = currentRole === 'admin' ? 'Admin' : (currentRole === 'teacher' ? 'Teacher' : 'Student');
+        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> <span>Sign In as ' + roleLabel + '</span>';
+        btn.disabled = false;
+      }
+    });
+
+    // Navbar scroll
+    const nav = document.getElementById('loginNavbar');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
+  </script>
+</body>
+</html>
